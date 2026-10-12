@@ -223,9 +223,38 @@ export type MarketingAngleFormat =
   | 'Cinematic Commercial'
   | 'Satisfying Reveal';
 
+export type AudioDirection =
+  | 'voiceover'
+  | 'music_only'
+  | 'dialogue_onscreen'
+  | 'asmr_foley';
+
+export type ContentFormatChoice =
+  | 'auto'
+  | 'ugc_review'
+  | 'problem_solution'
+  | 'product_showcase'
+  | 'unboxing'
+  | 'outfit_styling'
+  | 'satisfying_asmr'
+  | 'pov_daily'
+  | 'cinematic_ad'
+  | 'relatable_comedy'
+  | 'soft_selling';
+
+export type VideoMoodChoice =
+  | 'relatable'
+  | 'premium'
+  | 'upbeat'
+  | 'aesthetic'
+  | 'cozy';
+
 export interface CreativeConcept {
   bigIdea: string;
   format: MarketingAngleFormat;
+  contentFormatChoice: ContentFormatChoice;
+  audioDirection: AudioDirection;
+  videoMoodChoice: VideoMoodChoice;
   creativeAngle: string;
   visualHookAngle: string;
   productRevealMoment: string;
@@ -270,6 +299,24 @@ export interface ResearchReference {
   isFactualVerified: boolean;
 }
 
+export interface MarketingCaptionOption {
+  id: string;
+  formulaName: string;
+  formulaTag: 'PAS' | 'AIDA' | 'BAB' | 'STORY' | 'FOMO';
+  formulaDescription: string;
+  hookHeadline: string;
+  bodyText: string;
+  callToAction: string;
+  hashtags: string[];
+  fullCaption: string;
+  copyAdvice: string;
+}
+
+export interface MarketingCaptionsPackage {
+  mandatoryEnding: string;
+  options: MarketingCaptionOption[];
+}
+
 export interface PromptProject {
   id: string;
   userId: string;
@@ -294,6 +341,7 @@ export interface PromptProject {
   scenes: ScenePlan[];
   qualityReport: QualityAuditReport;
   researchReferences: ResearchReference[];
+  marketingCaptions?: MarketingCaptionsPackage;
   
   // Engine Metadata
   generationMode: 'ai-provider' | 'deterministic-template';
@@ -326,6 +374,32 @@ export const GeneratePromptInputSchema = z.object({
   })).default([]),
   languagePreference: z.enum(['id', 'en', 'bilingual']).default('bilingual'),
   enableWebResearch: z.boolean().default(false),
+  contentFormatChoice: z.enum([
+    'auto',
+    'ugc_review',
+    'problem_solution',
+    'product_showcase',
+    'unboxing',
+    'outfit_styling',
+    'satisfying_asmr',
+    'pov_daily',
+    'cinematic_ad',
+    'relatable_comedy',
+    'soft_selling',
+  ]).default('auto'),
+  audioDirection: z.enum([
+    'voiceover',
+    'music_only',
+    'dialogue_onscreen',
+    'asmr_foley',
+  ]).default('voiceover'),
+  videoMoodChoice: z.enum([
+    'relatable',
+    'premium',
+    'upbeat',
+    'aesthetic',
+    'cozy',
+  ]).default('relatable'),
 });
 
 export type GeneratePromptInput = z.infer<typeof GeneratePromptInputSchema>;

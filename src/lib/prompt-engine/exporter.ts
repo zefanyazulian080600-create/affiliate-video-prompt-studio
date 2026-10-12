@@ -81,6 +81,27 @@ ${s.negativePrompts.combinedNegativePrompt}
 `;
   }
 
+  if (project.marketingCaptions && project.marketingCaptions.options.length > 0) {
+    md += `
+---
+
+## 4. MASTER MARKETING CAPTIONS (5 RUMUS COPYWRITING)
+*Wajib diakhiri dengan: "${project.marketingCaptions.mandatoryEnding}"*
+
+`;
+    for (const opt of project.marketingCaptions.options) {
+      md += `### ${opt.formulaName} [${opt.formulaTag}]
+> **Tips Penggunaan:** ${opt.copyAdvice}
+
+\`\`\`text
+${opt.fullCaption}
+\`\`\`
+
+---
+`;
+    }
+  }
+
   return md;
 }
 

@@ -190,4 +190,35 @@ describe('Affiliate Video Prompt Studio — Automated Test Suite', () => {
     expect(plan.presetSceneDuration).toBe(10);
     expect(plan.durationWarning).toContain('Omni Flash hanya mendukung preset scene 10 detik');
   });
+
+  // Skenario 13: Auto Generate Master Marketing Captions
+  it('13. Generates 5 master marketing captions with mandatory bio link ending', () => {
+    const project = generateDeterministicPrompts({
+      productInput: 'Sepatu sneakers pria warna putih bersih untuk kuliah dan nongkrong harga 199rb',
+      totalDuration: 20,
+      workflowModel: 'seedance-2.5',
+      presetSceneDuration: 10,
+      productImages: [],
+      languagePreference: 'bilingual',
+      enableWebResearch: false,
+    });
+
+    expect(project.marketingCaptions).toBeDefined();
+    expect(project.marketingCaptions?.options.length).toBe(5);
+
+    const tags = project.marketingCaptions?.options.map(o => o.formulaTag);
+    expect(tags).toContain('AIDA');
+    expect(tags).toContain('PAS');
+    expect(tags).toContain('BAB');
+    expect(tags).toContain('STORY');
+    expect(tags).toContain('FOMO');
+
+    // Verify each caption option contains the mandatory ending: "cek link di bio untuk outfit ini"
+    project.marketingCaptions?.options.forEach(opt => {
+      expect(opt.fullCaption.toLowerCase()).toContain('cek link di bio untuk outfit ini');
+      expect(opt.callToAction.toLowerCase()).toBe('cek link di bio untuk outfit ini');
+      expect(opt.hookHeadline.length).toBeGreaterThan(10);
+      expect(opt.hashtags.length).toBeGreaterThanOrEqual(5);
+    });
+  });
 });

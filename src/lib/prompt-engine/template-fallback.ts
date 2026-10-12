@@ -11,6 +11,7 @@ import { generateCreativeConcept } from './creative-director';
 import { buildContinuityBible } from './continuity-bible-builder';
 import { generateScenePlans } from './scene-generator';
 import { auditPromptQuality } from './quality-auditor';
+import { generateMarketingCaptions } from './caption-generator';
 
 /**
  * Deterministic Template Engine: Fully functioning offline-first generator.
@@ -48,7 +49,11 @@ export function generateDeterministicPrompts(
     functionLabel: img.functionLabel as ImageFunctionLabel,
   }));
 
-  const creativeConcept = generateCreativeConcept(productProfile);
+  const creativeConcept = generateCreativeConcept(productProfile, {
+    contentFormatChoice: input.contentFormatChoice,
+    audioDirection: input.audioDirection,
+    videoMoodChoice: input.videoMoodChoice,
+  });
 
   const continuityBible = buildContinuityBible(
     productProfile,
@@ -73,6 +78,8 @@ export function generateDeterministicPrompts(
     productImages
   );
 
+  const marketingCaptions = generateMarketingCaptions(productProfile, creativeConcept);
+
   const now = new Date().toISOString();
 
   return {
@@ -94,6 +101,7 @@ export function generateDeterministicPrompts(
     continuityBible,
     scenes,
     qualityReport,
+    marketingCaptions,
     researchReferences: [
       {
         topic: `Tren Konten Shopee Video — ${productProfile.category}`,

@@ -11,11 +11,14 @@ import {
   FileJson,
   FileText,
   Clock,
+  Sparkles,
+  Flame,
 } from 'lucide-react';
 import { PromptProject } from '@/types';
 import { SceneCard } from './SceneCard';
 import { ContinuityBibleView } from './ContinuityBibleView';
 import { QualityAuditView } from './QualityAuditView';
+import { MarketingCaptionsView } from './MarketingCaptionsView';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import {
@@ -39,7 +42,7 @@ export const StoryboardView: React.FC<StoryboardViewProps> = ({
   onProjectUpdated,
 }) => {
   const [project, setProject] = useState<PromptProject>(initialProject);
-  const [activeTab, setActiveTab] = useState<'scenes' | 'bible' | 'audit' | 'export'>('scenes');
+  const [activeTab, setActiveTab] = useState<'scenes' | 'captions' | 'bible' | 'audit' | 'export'>('scenes');
   const [copiedAll, setCopiedAll] = useState(false);
   const saveStatus = 'Tersimpan di Penyimpanan';
 
@@ -163,6 +166,18 @@ export const StoryboardView: React.FC<StoryboardViewProps> = ({
           </button>
 
           <button
+            onClick={() => setActiveTab('captions')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+              activeTab === 'captions'
+                ? 'bg-violet-600 text-white shadow-md shadow-violet-900/40'
+                : 'text-studio-muted hover:text-studio-text hover:bg-studio-card'
+            }`}
+          >
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            Caption Marketing ({project.marketingCaptions?.options.length || 5} Rumus)
+          </button>
+
+          <button
             onClick={() => setActiveTab('bible')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
               activeTab === 'bible'
@@ -200,6 +215,50 @@ export const StoryboardView: React.FC<StoryboardViewProps> = ({
         </div>
       </div>
 
+      {/* Quick Caption Bar above scenes */}
+      {project.marketingCaptions && project.marketingCaptions.options.length > 0 && activeTab === 'scenes' && (
+        <div className="bg-gradient-to-r from-violet-950/40 via-studio-surface to-studio-card border border-violet-800/40 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center shrink-0">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-white">Auto Caption Siap Posting:</span>
+                <Badge variant="emerald" size="sm">Ending: Cek Link di Bio</Badge>
+              </div>
+              <p className="text-xs text-studio-muted line-clamp-1 mt-0.5">
+                "{project.marketingCaptions.options[0].hookHeadline}"
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                const topCaption = project.marketingCaptions?.options[0]?.fullCaption || '';
+                navigator.clipboard.writeText(topCaption);
+                setCopiedAll(true);
+                setTimeout(() => setCopiedAll(false), 2000);
+              }}
+              className="text-xs"
+            >
+              <Copy className="w-3.5 h-3.5 mr-1 text-violet-400" />
+              Salin Caption
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => setActiveTab('captions')}
+              className="text-xs"
+            >
+              Buka 5 Rumus
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Tab Panels */}
       {activeTab === 'scenes' && (
         <div className="space-y-4">
@@ -213,6 +272,13 @@ export const StoryboardView: React.FC<StoryboardViewProps> = ({
             />
           ))}
         </div>
+      )}
+
+      {activeTab === 'captions' && (
+        <MarketingCaptionsView
+          captionsPackage={project.marketingCaptions}
+          productName={project.productProfile.productName}
+        />
       )}
 
       {activeTab === 'bible' && <ContinuityBibleView bible={project.continuityBible} />}

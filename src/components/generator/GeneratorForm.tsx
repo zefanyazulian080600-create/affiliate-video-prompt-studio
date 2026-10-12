@@ -9,6 +9,16 @@ import {
   CheckCircle2,
   AlertCircle,
   Info,
+  Music,
+  Mic,
+  MessageSquare,
+  Headphones,
+  Sparkle,
+  Flame,
+  Palette,
+  Coffee,
+  Gem,
+  Tv,
 } from 'lucide-react';
 import {
   GeneratePromptInput,
@@ -17,6 +27,9 @@ import {
   ImageFunctionLabel,
   ProductImageReference,
   CharacterReference,
+  AudioDirection,
+  ContentFormatChoice,
+  VideoMoodChoice,
 } from '@/types';
 import { calculateDurationPlan, WORKFLOW_CONFIGS } from '@/lib/duration-calculator';
 import { Button } from '../ui/Button';
@@ -73,6 +86,11 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
   const [isCustomDuration, setIsCustomDuration] = useState<boolean>(false);
   const [customDurationInput, setCustomDurationInput] = useState<number>(30);
 
+  // E. Content Style, Audio Direction, & Mood State
+  const [contentFormatChoice, setContentFormatChoice] = useState<ContentFormatChoice>('auto');
+  const [audioDirection, setAudioDirection] = useState<AudioDirection>('voiceover');
+  const [videoMoodChoice, setVideoMoodChoice] = useState<VideoMoodChoice>('relatable');
+
   // Derived Workflow & Duration Calculations
   const currentWorkflow = WORKFLOW_CONFIGS[workflowKey] || WORKFLOW_CONFIGS['seedance-10s'];
   const activeTotalDuration = isCustomDuration ? customDurationInput : totalDuration;
@@ -82,7 +100,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
     currentWorkflow.presetSceneDuration
   );
 
-  // Handle Product Images Upload (Client-side object URL)
+  // Handle Product Images Upload
   const handleProductImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUploadError(null);
     const files = e.target.files;
@@ -92,13 +110,11 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
-      // Validate type
       if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
         setUploadError(`File '${file.name}' tidak didukung. Harap gunakan format JPEG, PNG, atau WebP.`);
         return;
       }
 
-      // Validate size (10MB max)
       if (file.size > 10 * 1024 * 1024) {
         setUploadError(`File '${file.name}' melebihi batas maksimal 10MB.`);
         return;
@@ -183,10 +199,62 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
       productImages,
       languagePreference: 'bilingual',
       enableWebResearch: false,
+      contentFormatChoice,
+      audioDirection,
+      videoMoodChoice,
     };
 
     onGenerate(payload);
   };
+
+  const formatOptions: { id: ContentFormatChoice; title: string; desc: string; icon: string }[] = [
+    { id: 'auto', title: 'Otomatis Sesuai Produk', desc: 'Sistem menganalisis kategori produk dan memilih format terbaik', icon: '🎯' },
+    { id: 'ugc_review', title: 'UGC Review Jujur', desc: 'Gaya testimoni kreator langsung tanpa filter, ekspresif dan relatable', icon: '🤳' },
+    { id: 'problem_solution', title: 'Problem ➔ Solution', desc: 'Tampilkan dilema/masalah penonton lalu hadirkan produk sebagai solusi', icon: '💡' },
+    { id: 'product_showcase', title: 'Detail Bahan & Kualitas', desc: 'Fokus pameran tekstur fisik, presisi jahitan, dan keaslian material', icon: '🔍' },
+    { id: 'unboxing', title: 'Unboxing & First Impression', desc: 'Sensasi membuka segel kemasan baru, first touch, dan kepuasan unboxing', icon: '📦' },
+    { id: 'outfit_styling', title: 'Outfit Styling / OOTD', desc: 'Transformasi gaya penampilan instan dengan paduan outfit stylish', icon: '👗' },
+    { id: 'satisfying_asmr', title: 'Satisfying Reveal (ASMR)', desc: 'Sensory visual memanjakan mata: kelenturan, bukaan magnetik, atau tetesan', icon: '🫧' },
+    { id: 'pov_daily', title: 'Daily Life POV', desc: 'Sudut pandang orang pertama (A Day in My Life) memakai produk seharian', icon: '🚶' },
+    { id: 'cinematic_ad', title: 'Iklan Sinematik Premium', desc: 'Standar commercial mewah: pencahayaan dramatis, moody rim light, high-end', icon: '🎬' },
+    { id: 'relatable_comedy', title: 'Komedi Relatable', desc: 'Humor ringan seputar kebiasaan sehari-hari yang berujung solusi produk', icon: '😂' },
+    { id: 'soft_selling', title: 'Soft Selling Story', desc: 'Storytelling santai dan hangat tanpa terkesan memaksa jualan', icon: '☕' },
+  ];
+
+  const audioOptions: { id: AudioDirection; title: string; desc: string; icon: any }[] = [
+    {
+      id: 'voiceover',
+      title: 'Voiceover Narasi Shopee',
+      desc: 'Narasi suara persuasif bahasa Indonesia + musik latar upbeat komersial',
+      icon: Mic,
+    },
+    {
+      id: 'music_only',
+      title: 'Tanpa Dialog (Just Music Background)',
+      desc: 'Visual storytelling murni tanpa suara bicara, hanya musik latar ritmis & efek foley',
+      icon: Music,
+    },
+    {
+      id: 'dialogue_onscreen',
+      title: 'Talent Bicara ke Kamera (Vlog Speech)',
+      desc: 'Talent berbicara spontan langsung menghadap lensa + musik latar pendukung',
+      icon: MessageSquare,
+    },
+    {
+      id: 'asmr_foley',
+      title: 'Suara ASMR Taktil (Zero Speech)',
+      desc: 'Fokus suara fisik produk (klik tombol, lenturan sol, buka box) tanpa suara bicara',
+      icon: Headphones,
+    },
+  ];
+
+  const moodOptions: { id: VideoMoodChoice; title: string; desc: string; icon: any }[] = [
+    { id: 'relatable', title: 'Relatable & Jujur', desc: 'Gaya kreator Shopee yang bersahabat dan jujur', icon: Sparkle },
+    { id: 'premium', title: 'Mewah & Elegan', desc: 'Pencahayaan commercial high-contrast berkelas', icon: Gem },
+    { id: 'upbeat', title: 'Energetik & Ceria', desc: 'Pacing cepat, warna cerah, dan bersemangat', icon: Flame },
+    { id: 'aesthetic', title: 'Aesthetic Minimalis', desc: 'Gaya Korean/Scandinavian pastel lembut bersih', icon: Palette },
+    { id: 'cozy', title: 'Santai & Cozy', desc: 'Nuansa hangat sore hari yang menenangkan', icon: Coffee },
+  ];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -225,13 +293,129 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
       </Card>
 
       {/* ========================================================
-          B. CHARACTER REFERENCE (OPSIONAL)
+          B. PILIHAN JENIS KONTEN & ARAHAN AUDIO (BARU)
+      ======================================================== */}
+      <Card className="border-studio-border bg-studio-surface/90">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-violet-600/30 text-violet-300 font-bold text-xs">
+              B
+            </span>
+            <h3 className="font-bold text-base text-studio-text">
+              Format Konten Affiliate & Arahan Suara
+            </h3>
+          </div>
+          <Badge variant="violet" size="sm">
+            Kustomisasi Lengkap
+          </Badge>
+        </div>
+        <p className="text-xs text-studio-muted mb-4">
+          Pilih format iklan yang ingin dibuat, jenis audio/narasi (termasuk opsi Just Music tanpa dialog), dan nuansa visual video.
+        </p>
+
+        {/* 1. Jenis Konten Affiliate */}
+        <div className="space-y-2 mb-5">
+          <label className="text-xs font-semibold text-studio-text uppercase tracking-wider block">
+            1. Jenis Konten Video Affiliate:
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+            {formatOptions.map(opt => (
+              <div
+                key={opt.id}
+                onClick={() => setContentFormatChoice(opt.id)}
+                className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                  contentFormatChoice === opt.id
+                    ? 'border-violet-500 bg-violet-950/40 ring-1 ring-violet-500 shadow-md shadow-violet-950/30'
+                    : 'border-studio-border bg-studio-bg/60 hover:border-studio-borderHover'
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-base">{opt.icon}</span>
+                  <span className="text-xs font-bold text-studio-text truncate">
+                    {opt.title}
+                  </span>
+                </div>
+                <p className="text-[11px] text-studio-muted leading-tight line-clamp-2">
+                  {opt.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 2. Pilihan Audio & Narasi Direction */}
+        <div className="space-y-2 mb-5">
+          <label className="text-xs font-semibold text-studio-text uppercase tracking-wider block">
+            2. Pilihan Audio & Suara Narasi:
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {audioOptions.map(opt => {
+              const Icon = opt.icon;
+              return (
+                <div
+                  key={opt.id}
+                  onClick={() => setAudioDirection(opt.id)}
+                  className={`p-3 rounded-xl border cursor-pointer transition-all flex items-start gap-3 ${
+                    audioDirection === opt.id
+                      ? 'border-blue-500 bg-blue-950/40 ring-1 ring-blue-500 shadow-md shadow-blue-950/30'
+                      : 'border-studio-border bg-studio-bg/60 hover:border-studio-borderHover'
+                  }`}
+                >
+                  <div className={`p-2 rounded-lg flex-shrink-0 ${
+                    audioDirection === opt.id ? 'bg-blue-600 text-white' : 'bg-studio-card text-studio-muted'
+                  }`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs font-bold text-studio-text block">
+                      {opt.title}
+                    </span>
+                    <p className="text-[11px] text-studio-muted leading-tight mt-0.5">
+                      {opt.desc}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 3. Pilihan Tone & Mood Video */}
+        <div className="space-y-2">
+          <label className="text-xs font-semibold text-studio-text uppercase tracking-wider block">
+            3. Mood & Karakter Visual:
+          </label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+            {moodOptions.map(opt => {
+              const Icon = opt.icon;
+              return (
+                <div
+                  key={opt.id}
+                  onClick={() => setVideoMoodChoice(opt.id)}
+                  className={`p-2.5 rounded-xl border cursor-pointer text-center transition-all ${
+                    videoMoodChoice === opt.id
+                      ? 'border-emerald-500 bg-emerald-950/40 ring-1 ring-emerald-500 text-emerald-200'
+                      : 'border-studio-border bg-studio-bg/60 text-studio-muted hover:text-studio-text'
+                  }`}
+                >
+                  <Icon className="w-4 h-4 mx-auto mb-1 text-emerald-400" />
+                  <span className="text-xs font-bold block truncate">{opt.title}</span>
+                  <span className="text-[10px] text-studio-muted block truncate mt-0.5">{opt.desc}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </Card>
+
+      {/* ========================================================
+          C. CHARACTER REFERENCE (OPSIONAL)
       ======================================================== */}
       <Card className="border-studio-border bg-studio-surface/90">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-blue-600/30 text-blue-300 font-bold text-xs">
-              B
+              C
             </span>
             <h3 className="font-bold text-base text-studio-text">
               Character Reference (Opsional)
@@ -298,13 +482,13 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
       </Card>
 
       {/* ========================================================
-          C. FOTO PRODUK
+          D. FOTO PRODUK
       ======================================================== */}
       <Card className="border-studio-border bg-studio-surface/90">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-emerald-600/30 text-emerald-300 font-bold text-xs">
-              C
+              D
             </span>
             <h3 className="font-bold text-base text-studio-text">
               Foto Produk (Multi-Upload)
@@ -413,13 +597,13 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
       </Card>
 
       {/* ========================================================
-          D. DURASI VIDEO & WORKFLOW
+          E. DURASI VIDEO & WORKFLOW AI
       ======================================================== */}
       <Card className="border-studio-border bg-studio-surface/90">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-amber-600/30 text-amber-300 font-bold text-xs">
-              D
+              E
             </span>
             <h3 className="font-bold text-base text-studio-text">
               Durasi Video & Workflow AI Model
@@ -551,7 +735,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
           GENERATE AFFILIATE VIDEO PROMPTS
         </Button>
         <p className="text-center text-xs text-studio-muted mt-2">
-          Pipeline otomatis: Analisis Produk ➔ Creative Concept ➔ Continuity Bible ➔ Storyboard Scene ➔ Kontrol Kualitas
+          Pipeline otomatis: Analisis Produk ➔ Format Konten ➔ Continuity Bible ➔ Storyboard Scene ➔ Kontrol Kualitas
         </p>
       </div>
     </form>
