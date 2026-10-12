@@ -1,12 +1,18 @@
 # AFFILIATE VIDEO PROMPT STUDIO
 
-Studio Pembuat Prompt Video Sinematik & Continuity Engine Profesional untuk Affiliate Shopee Indonesia.
+Studio Pembuat Prompt Video Sinematik, Continuity Engine & Master Marketing Caption Generator untuk Affiliate Shopee Indonesia.
 
+[![Live Website](https://img.shields.io/badge/Live-affiliate--video--studio.vercel.app-7928CA?style=flat&logo=vercel)](https://affiliate-video-studio.vercel.app)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-zefanyazulian080600--create%2Faffiliate--video--prompt--studio-181717?style=flat&logo=github)](https://github.com/zefanyazulian080600-create/affiliate-video-prompt-studio)
 [![Next.js 14](https://img.shields.io/badge/Next.js-14.2-black?style=flat&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8?style=flat&logo=tailwindcss)](https://tailwindcss.com/)
-[![Tests](https://img.shields.io/badge/Vitest-100%25%20Passing-brightgreen?style=flat&logo=vitest)](https://vitest.dev/)
+[![Tests](https://img.shields.io/badge/Vitest-13%20Passed-brightgreen?style=flat&logo=vitest)](https://vitest.dev/)
 [![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
+
+🌐 **Production Website**: [https://affiliate-video-studio.vercel.app](https://affiliate-video-studio.vercel.app)  
+✨ **Direct Generator**: [https://affiliate-video-studio.vercel.app/generator](https://affiliate-video-studio.vercel.app/generator)  
+📦 **GitHub Repository**: [https://github.com/zefanyazulian080600-create/affiliate-video-prompt-studio](https://github.com/zefanyazulian080600-create/affiliate-video-prompt-studio)
 
 ---
 
