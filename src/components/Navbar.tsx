@@ -13,6 +13,7 @@ import {
   Menu,
   X,
   Zap,
+  Flame,
 } from 'lucide-react';
 import { Badge } from './ui/Badge';
 
@@ -21,11 +22,10 @@ export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { label: 'Dashboard', href: '/', icon: Video },
-    { label: 'Buat Prompt', href: '/generator', icon: Sparkles },
+    { label: 'Video Studio', href: '/generator', icon: Sparkles },
+    { label: 'Poster Monyet 🐵', href: '/poster', icon: Flame, badge: 'Viral' },
     { label: 'Proyek Saya', href: '/projects', icon: FolderOpen },
     { label: 'Prompt Library', href: '/library', icon: BookOpen },
-    { label: 'Pengaturan', href: '/settings', icon: Settings },
     { label: 'Bantuan', href: '/help', icon: HelpCircle },
   ];
 
@@ -65,6 +65,11 @@ export const Navbar: React.FC = () => {
                 >
                   <Icon className="w-3.5 h-3.5" />
                   {item.label}
+                  {item.badge && (
+                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-amber-400 text-black ml-0.5 tracking-tight">
+                      {item.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -117,7 +122,12 @@ export const Navbar: React.FC = () => {
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                {item.label}
+                <span className="flex-1">{item.label}</span>
+                {item.badge && (
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded bg-amber-400 text-black tracking-tight">
+                    {item.badge}
+                  </span>
+                )}
               </Link>
             );
           })}
