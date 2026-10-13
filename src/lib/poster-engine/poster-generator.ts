@@ -1,23 +1,46 @@
-import { PosterInputData, PosterGeneratedResult, PosterOutfitItem } from '@/types/poster';
+import { PosterInputData, PosterGeneratedResult, PosterOutfitItem, OutfitItemCategory } from '@/types/poster';
+
+export const OUTFIT_CATEGORY_LABELS: Record<
+  OutfitItemCategory,
+  { label: string; icon: string; short: string }
+> = {
+  top: { label: 'Baju / Atasan', icon: '👕', short: 'Baju' },
+  bottom: { label: 'Celana / Bawahan', icon: '👖', short: 'Celana' },
+  footwear: { label: 'Sepatu / Alas Kaki', icon: '👟', short: 'Sepatu' },
+  bag: { label: 'Tas / Slingbag', icon: '🎒', short: 'Tas' },
+  accessory: { label: 'Aksesori / Jam / Topi', icon: '⌚', short: 'Aksesori' },
+  other: { label: 'Item Tambahan', icon: '🏷️', short: 'Item' },
+};
 
 /**
- * Synthesizes an English clothing phrase from user's item name and detail.
+ * Synthesizes an English clothing phrase from user's item name, detail, and category.
  */
 function synthesizeOutfitItemEnglish(item: PosterOutfitItem): string {
   const name = item.name.trim().toLowerCase();
   const detail = item.detail.trim().toLowerCase();
 
-  if (name && detail) {
-    return `${detail} ${name}`;
-  }
-  return detail || name || 'streetwear apparel item';
+  let roleNote = '';
+  if (item.category === 'top') roleNote = 'as top';
+  else if (item.category === 'bottom') roleNote = 'as bottoms';
+  else if (item.category === 'footwear') roleNote = 'as footwear';
+
+  const phrase = (name && detail) ? `${detail} ${name}` : (detail || name || 'apparel item');
+  return roleNote ? `${phrase} ${roleNote}` : phrase;
 }
 
 /**
- * Builds the full outfit description for the monkey model.
+ * Builds the full outfit description for the monkey model in anatomical order.
  */
 function buildFullOutfitDescription(items: PosterOutfitItem[]): string {
-  const parts = items.map(synthesizeOutfitItemEnglish);
+  // Order items logically: top -> bottom -> footwear -> bag -> accessory
+  const categoryOrder: OutfitItemCategory[] = ['top', 'bottom', 'footwear', 'bag', 'accessory', 'other'];
+  const sorted = [...items].sort((a, b) => {
+    const idxA = categoryOrder.indexOf(a.category || 'other');
+    const idxB = categoryOrder.indexOf(b.category || 'other');
+    return idxA - idxB;
+  });
+
+  const parts = sorted.map(synthesizeOutfitItemEnglish);
   if (parts.length === 0) {
     return 'coordinated contemporary urban streetwear outfit';
   }
@@ -100,11 +123,12 @@ All text perfectly legible, no typos, spelled EXACTLY as given.
 Premium commercial fashion photography, realistic fur and fabric textures,
 soft studio lighting.`.trim();
 
-  // Formatted BAGIAN A
+  // Formatted BAGIAN A with explicit item category label
   let formattedA = `FOTO KARAKTER : [pakai foto referensi monyet streetwear — LOCKED]\n\n`;
   data.items.forEach((item, idx) => {
     const n = idx + 1;
-    formattedA += `FOTO ITEM ${n}   : [${item.photoName || item.photoUrl ? 'Foto terlampir' : 'Foto item ' + item.name}]\n`;
+    const catMeta = OUTFIT_CATEGORY_LABELS[item.category || 'other'];
+    formattedA += `FOTO ITEM ${n} [${catMeta.icon} ${catMeta.label.toUpperCase()}] : [${item.photoName || item.photoUrl ? 'Foto terlampir' : 'Foto produk ' + item.name}]\n`;
     formattedA += `NAMA ITEM ${n}   : ${item.name || '-'}\n`;
     formattedA += `DETAIL ITEM ${n} : ${item.detail || '-'}\n`;
     formattedA += `HARGA ITEM ${n}  : ${item.price || '-'}\n\n`;
@@ -119,7 +143,13 @@ soft studio lighting.`.trim();
   formattedA += `STAMP             : ${stamp}\n`;
 
   // Viral Social Caption
-  const itemsSummary = data.items.map(it => `• ${it.name} (${it.price})`).join('\n');
+  const itemsSummary = data.items
+    .map(it => {
+      const cat = OUTFIT_CATEGORY_LABELS[it.category || 'other'];
+      return `${cat.icon} ${it.name} (${it.price})`;
+    })
+    .join('\n');
+
   const socialCaption = `Coba lo liat... Sekarang kerenan monyet ini apa elu? 😭🔥
 
 Spill outfit breakdown edisi Logika Anak Bekasi:
@@ -142,7 +172,7 @@ Gak usah gengsi, mumpung harganya masih masuk akal dan ready stock di Shopee.
 }
 
 /**
- * Default preset matching Bagian D in the master prompt.
+ * Default preset matching Bagian D in the master prompt with explicit categories.
  */
 export const DEFAULT_POSTER_PRESET: PosterInputData = {
   subtitle: 'Coba lo liat !!!',
@@ -155,30 +185,35 @@ export const DEFAULT_POSTER_PRESET: PosterInputData = {
   items: [
     {
       id: 'item-1',
+      category: 'top', // 👕 Baju
       name: 'OVERSIZED TEE',
       detail: 'BLACK COTTON',
       price: 'Rp 59.000',
     },
     {
       id: 'item-2',
+      category: 'bottom', // 👖 Celana
       name: 'RELAXED CARGO',
       detail: 'OLIVE GREEN',
       price: 'Rp 129.000',
     },
     {
       id: 'item-3',
+      category: 'footwear', // 👟 Sepatu
       name: 'LOW-TOP SNEAKERS',
       detail: 'OFF-WHITE',
       price: 'Rp 149.000',
     },
     {
       id: 'item-4',
+      category: 'bag', // 🎒 Tas
       name: 'CROSSBODY BAG',
       detail: 'MATTE BLACK',
       price: 'Rp 79.000',
     },
     {
       id: 'item-5',
+      category: 'accessory', // ⌚ Aksesori
       name: 'MINIMAL WATCH',
       detail: 'DARK FINISH',
       price: 'Rp 99.000',

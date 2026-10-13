@@ -4,6 +4,7 @@ import {
   DEFAULT_POSTER_PRESET,
   NEGATIVE_PROMPT_POSTER,
 } from '../src/lib/poster-engine/poster-generator';
+import { detectOutfitCategory } from '../src/lib/poster-engine/url-extractor';
 import { PosterInputData } from '../src/types/poster';
 
 describe('Logika Anak Bekasi — Poster Prompt Generator', () => {
@@ -22,9 +23,9 @@ describe('Logika Anak Bekasi — Poster Prompt Generator', () => {
 
     // Monkey character & outfit synthesis
     expect(result.mainPrompt).toContain('full-body photorealistic long-tailed macaque monkey standing');
-    expect(result.mainPrompt).toContain('black cotton oversized tee');
-    expect(result.mainPrompt).toContain('olive green relaxed cargo');
-    expect(result.mainPrompt).toContain('off-white low-top sneakers');
+    expect(result.mainPrompt).toContain('black cotton oversized tee as top');
+    expect(result.mainPrompt).toContain('olive green relaxed cargo as bottoms');
+    expect(result.mainPrompt).toContain('off-white low-top sneakers as footwear');
 
     // Cards breakdown (5 items)
     expect(result.mainPrompt).toContain("CARD 01 'OVERSIZED TEE' / 'BLACK COTTON' / 'Rp 59.000'");
@@ -71,5 +72,27 @@ describe('Logika Anak Bekasi — Poster Prompt Generator', () => {
     expect(result.socialCaption).toContain('Sekarang kerenan monyet ini apa elu?');
     expect(result.socialCaption).toContain('cek link di bio untuk outfit ini');
     expect(result.socialCaption).toContain('#logikaanakbekasi');
+  });
+
+  it('5. Detects outfit categories accurately from product terms', () => {
+    expect(detectOutfitCategory('Kaos Oversized Pria Hitam')).toBe('top');
+    expect(detectOutfitCategory('Kemeja Flannel Pria Kotak-kotak')).toBe('top');
+    expect(detectOutfitCategory('Celana Cargo Panjang Pria Relaxed')).toBe('bottom');
+    expect(detectOutfitCategory('Celana Jeans Denim Straight')).toBe('bottom');
+    expect(detectOutfitCategory('Sepatu Sneakers Pria Putih Casual')).toBe('footwear');
+    expect(detectOutfitCategory('Sandal Gunung Outdoor')).toBe('footwear');
+    expect(detectOutfitCategory('Tas Selempang Crossbody Bag')).toBe('bag');
+    expect(detectOutfitCategory('Backpack Laptop Pria')).toBe('bag');
+    expect(detectOutfitCategory('Jam Tangan Analog Pria')).toBe('accessory');
+    expect(detectOutfitCategory('Topi Baseball Cap')).toBe('accessory');
+  });
+
+  it('6. Clearly annotates outfit roles (baju, celana, sepatu, etc.) in Bagian A output', () => {
+    const result = generatePosterPrompt(DEFAULT_POSTER_PRESET);
+    expect(result.formattedBagianA).toContain('FOTO ITEM 1 [👕 BAJU / ATASAN]');
+    expect(result.formattedBagianA).toContain('FOTO ITEM 2 [👖 CELANA / BAWAHAN]');
+    expect(result.formattedBagianA).toContain('FOTO ITEM 3 [👟 SEPATU / ALAS KAKI]');
+    expect(result.formattedBagianA).toContain('FOTO ITEM 4 [🎒 TAS / SLINGBAG]');
+    expect(result.formattedBagianA).toContain('FOTO ITEM 5 [⌚ AKSESORI / JAM / TOPI]');
   });
 });

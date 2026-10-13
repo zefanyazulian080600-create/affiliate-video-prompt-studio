@@ -1,10 +1,20 @@
+export type OutfitItemCategory =
+  | 'top'        // 👕 Baju / Atasan
+  | 'bottom'     // 👖 Celana / Bawahan
+  | 'footwear'   // 👟 Sepatu / Alas Kaki
+  | 'bag'        // 🎒 Tas
+  | 'accessory'  // ⌚ Aksesori
+  | 'other';     // 🏷️ Lainnya
+
 export interface PosterOutfitItem {
   id: string;
+  category: OutfitItemCategory;
   name: string;
   detail: string;
   price: string;
   photoUrl?: string;
   photoName?: string;
+  productUrl?: string;
 }
 
 export interface PosterInputData {
