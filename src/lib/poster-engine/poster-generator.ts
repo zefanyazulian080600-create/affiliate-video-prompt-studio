@@ -79,10 +79,11 @@ export function generatePosterPrompt(data: PosterInputData): PosterGeneratedResu
   const cardsBlock = data.items
     .map((item, index) => {
       const numStr = String(index + 1).padStart(2, '0');
+      const codeStr = item.code?.trim() ? `[${item.code.trim()}] ` : `[#${numStr}] `;
       const nameStr = item.name.trim().toUpperCase() || `ITEM ${numStr}`;
       const detailStr = item.detail.trim().toUpperCase() || 'DETAIL';
       const priceStr = item.price.trim() || 'Rp -';
-      return `CARD ${numStr} '${nameStr}' / '${detailStr}' / '${priceStr}'`;
+      return `CARD ${numStr} ${codeStr}'${nameStr}' / '${detailStr}' / '${priceStr}'`;
     })
     .join('\n');
 
@@ -123,12 +124,14 @@ All text perfectly legible, no typos, spelled EXACTLY as given.
 Premium commercial fashion photography, realistic fur and fabric textures,
 soft studio lighting.`.trim();
 
-  // Formatted BAGIAN A with explicit item category label
+  // Formatted BAGIAN A with explicit item category label and item code
   let formattedA = `FOTO KARAKTER : [pakai foto referensi monyet streetwear — LOCKED]\n\n`;
   data.items.forEach((item, idx) => {
     const n = idx + 1;
     const catMeta = OUTFIT_CATEGORY_LABELS[item.category || 'other'];
+    const itemCode = item.code?.trim() || `#${String(n).padStart(2, '0')}`;
     formattedA += `FOTO ITEM ${n} [${catMeta.icon} ${catMeta.label.toUpperCase()}] : [${item.photoName || item.photoUrl ? 'Foto terlampir' : 'Foto produk ' + item.name}]\n`;
+    formattedA += `KODE ITEM ${n}   : ${itemCode}\n`;
     formattedA += `NAMA ITEM ${n}   : ${item.name || '-'}\n`;
     formattedA += `DETAIL ITEM ${n} : ${item.detail || '-'}\n`;
     formattedA += `HARGA ITEM ${n}  : ${item.price || '-'}\n\n`;
@@ -186,6 +189,7 @@ export const DEFAULT_POSTER_PRESET: PosterInputData = {
     {
       id: 'item-1',
       category: 'top', // 👕 Baju
+      code: '#01',
       name: 'OVERSIZED TEE',
       detail: 'BLACK COTTON',
       price: 'Rp 59.000',
@@ -193,6 +197,7 @@ export const DEFAULT_POSTER_PRESET: PosterInputData = {
     {
       id: 'item-2',
       category: 'bottom', // 👖 Celana
+      code: '#02',
       name: 'RELAXED CARGO',
       detail: 'OLIVE GREEN',
       price: 'Rp 129.000',
@@ -200,6 +205,7 @@ export const DEFAULT_POSTER_PRESET: PosterInputData = {
     {
       id: 'item-3',
       category: 'footwear', // 👟 Sepatu
+      code: '#03',
       name: 'LOW-TOP SNEAKERS',
       detail: 'OFF-WHITE',
       price: 'Rp 149.000',
@@ -207,6 +213,7 @@ export const DEFAULT_POSTER_PRESET: PosterInputData = {
     {
       id: 'item-4',
       category: 'bag', // 🎒 Tas
+      code: '#04',
       name: 'CROSSBODY BAG',
       detail: 'MATTE BLACK',
       price: 'Rp 79.000',
@@ -214,6 +221,7 @@ export const DEFAULT_POSTER_PRESET: PosterInputData = {
     {
       id: 'item-5',
       category: 'accessory', // ⌚ Aksesori
+      code: '#05',
       name: 'MINIMAL WATCH',
       detail: 'DARK FINISH',
       price: 'Rp 99.000',

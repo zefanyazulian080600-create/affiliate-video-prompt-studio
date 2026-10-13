@@ -27,12 +27,12 @@ describe('Logika Anak Bekasi — Poster Prompt Generator', () => {
     expect(result.mainPrompt).toContain('olive green relaxed cargo as bottoms');
     expect(result.mainPrompt).toContain('off-white low-top sneakers as footwear');
 
-    // Cards breakdown (5 items)
-    expect(result.mainPrompt).toContain("CARD 01 'OVERSIZED TEE' / 'BLACK COTTON' / 'Rp 59.000'");
-    expect(result.mainPrompt).toContain("CARD 02 'RELAXED CARGO' / 'OLIVE GREEN' / 'Rp 129.000'");
-    expect(result.mainPrompt).toContain("CARD 03 'LOW-TOP SNEAKERS' / 'OFF-WHITE' / 'Rp 149.000'");
-    expect(result.mainPrompt).toContain("CARD 04 'CROSSBODY BAG' / 'MATTE BLACK' / 'Rp 79.000'");
-    expect(result.mainPrompt).toContain("CARD 05 'MINIMAL WATCH' / 'DARK FINISH' / 'Rp 99.000'");
+    // Cards breakdown (5 items with code #nomor)
+    expect(result.mainPrompt).toContain("CARD 01 [#01] 'OVERSIZED TEE' / 'BLACK COTTON' / 'Rp 59.000'");
+    expect(result.mainPrompt).toContain("CARD 02 [#02] 'RELAXED CARGO' / 'OLIVE GREEN' / 'Rp 129.000'");
+    expect(result.mainPrompt).toContain("CARD 03 [#03] 'LOW-TOP SNEAKERS' / 'OFF-WHITE' / 'Rp 149.000'");
+    expect(result.mainPrompt).toContain("CARD 04 [#04] 'CROSSBODY BAG' / 'MATTE BLACK' / 'Rp 79.000'");
+    expect(result.mainPrompt).toContain("CARD 05 [#05] 'MINIMAL WATCH' / 'DARK FINISH' / 'Rp 99.000'");
 
     // Punchlines & CTA
     expect(result.mainPrompt).toContain("'SEKARANG KERENAN' in white on first line");
@@ -60,9 +60,9 @@ describe('Logika Anak Bekasi — Poster Prompt Generator', () => {
       items: DEFAULT_POSTER_PRESET.items.slice(0, 3),
     };
     const result = generatePosterPrompt(data3Items);
-    expect(result.mainPrompt).toContain("CARD 01 'OVERSIZED TEE'");
-    expect(result.mainPrompt).toContain("CARD 02 'RELAXED CARGO'");
-    expect(result.mainPrompt).toContain("CARD 03 'LOW-TOP SNEAKERS'");
+    expect(result.mainPrompt).toContain("CARD 01 [#01] 'OVERSIZED TEE'");
+    expect(result.mainPrompt).toContain("CARD 02 [#02] 'RELAXED CARGO'");
+    expect(result.mainPrompt).toContain("CARD 03 [#03] 'LOW-TOP SNEAKERS'");
     expect(result.mainPrompt).not.toContain('CARD 04');
     expect(result.mainPrompt).not.toContain('CARD 05');
   });
@@ -87,12 +87,32 @@ describe('Logika Anak Bekasi — Poster Prompt Generator', () => {
     expect(detectOutfitCategory('Topi Baseball Cap')).toBe('accessory');
   });
 
-  it('6. Clearly annotates outfit roles (baju, celana, sepatu, etc.) in Bagian A output', () => {
+  it('6. Clearly annotates outfit roles (baju, celana, sepatu, etc.) and item code in Bagian A output', () => {
     const result = generatePosterPrompt(DEFAULT_POSTER_PRESET);
     expect(result.formattedBagianA).toContain('FOTO ITEM 1 [👕 BAJU / ATASAN]');
+    expect(result.formattedBagianA).toContain('KODE ITEM 1   : #01');
     expect(result.formattedBagianA).toContain('FOTO ITEM 2 [👖 CELANA / BAWAHAN]');
+    expect(result.formattedBagianA).toContain('KODE ITEM 2   : #02');
     expect(result.formattedBagianA).toContain('FOTO ITEM 3 [👟 SEPATU / ALAS KAKI]');
+    expect(result.formattedBagianA).toContain('KODE ITEM 3   : #03');
     expect(result.formattedBagianA).toContain('FOTO ITEM 4 [🎒 TAS / SLINGBAG]');
+    expect(result.formattedBagianA).toContain('KODE ITEM 4   : #04');
     expect(result.formattedBagianA).toContain('FOTO ITEM 5 [⌚ AKSESORI / JAM / TOPI]');
+    expect(result.formattedBagianA).toContain('KODE ITEM 5   : #05');
+  });
+
+  it('7. Supports custom manual item codes (e.g. #14, #spill-22)', () => {
+    const customData: PosterInputData = {
+      ...DEFAULT_POSTER_PRESET,
+      items: [
+        {
+          ...DEFAULT_POSTER_PRESET.items[0],
+          code: '#14',
+        },
+      ],
+    };
+    const result = generatePosterPrompt(customData);
+    expect(result.mainPrompt).toContain("CARD 01 [#14] 'OVERSIZED TEE'");
+    expect(result.formattedBagianA).toContain('KODE ITEM 1   : #14');
   });
 });

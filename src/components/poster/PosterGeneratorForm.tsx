@@ -26,6 +26,7 @@ import {
   Loader2,
   Check,
   AlertCircle,
+  Hash,
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
@@ -48,6 +49,7 @@ export const PosterGeneratorForm: React.FC = () => {
   const [linkMessages, setLinkMessages] = useState<
     Record<string, { type: 'success' | 'error'; text: string }>
   >({});
+  const debounceTimers = React.useRef<Record<string, NodeJS.Timeout>>({});
 
   const handleAddItem = () => {
     if (formData.items.length >= 5) return;
@@ -67,6 +69,7 @@ export const PosterGeneratorForm: React.FC = () => {
     const newItem: PosterOutfitItem = {
       id: `item-${Date.now()}`,
       category: suggestedCategory,
+      code: `#${String(nextNum).padStart(2, '0')}`,
       name: `ITEM 0${nextNum}`,
       detail: 'MATERIAL / WARNA',
       price: 'Rp -',
@@ -155,7 +158,7 @@ export const PosterGeneratorForm: React.FC = () => {
           ...prev,
           [id]: {
             type: 'success',
-            text: data.message || 'Data & kategori berhasil diisi otomatis dari link!',
+            text: data.message || 'Foto, nama produk, detail bahan & harga berhasil diisi otomatis!',
           },
         }));
       } else {
@@ -177,6 +180,34 @@ export const PosterGeneratorForm: React.FC = () => {
       }));
     } finally {
       setLoadingLinks(prev => ({ ...prev, [id]: false }));
+    }
+  };
+
+  const triggerAutoExtract = (id: string, url: string) => {
+    if (debounceTimers.current[id]) {
+      clearTimeout(debounceTimers.current[id]);
+    }
+    debounceTimers.current[id] = setTimeout(() => {
+      handleExtractFromUrl(id, url);
+    }, 500);
+  };
+
+  const handlePasteUrl = (id: string, e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pastedText = e.clipboardData.getData('text')?.trim();
+    if (
+      pastedText &&
+      (pastedText.startsWith('http://') ||
+       pastedText.startsWith('https://') ||
+       pastedText.includes('shopee') ||
+       pastedText.includes('tokopedia') ||
+       pastedText.includes('tiktok.com') ||
+       pastedText.includes('.co.id') ||
+       pastedText.includes('.link'))
+    ) {
+      e.preventDefault();
+      handleUpdateItem(id, 'productUrl', pastedText);
+      // Langsung jalankan ekstraksi otomatis seketika tanpa jeda!
+      handleExtractFromUrl(id, pastedText);
     }
   };
 
@@ -205,6 +236,7 @@ export const PosterGeneratorForm: React.FC = () => {
         {
           id: 'item-1',
           category: 'top',
+          code: '#01',
           name: '',
           detail: '',
           price: 'Rp ',
@@ -343,11 +375,14 @@ export const PosterGeneratorForm: React.FC = () => {
                   key={item.id}
                   className="bg-studio-card border border-studio-border hover:border-amber-500/40 rounded-2xl p-5 space-y-4 transition-all relative group shadow-lg"
                 >
-                  {/* CARD HEADER & CATEGORY BADGE */}
+                  {/* CARD HEADER & CATEGORY BADGE & KODE BADGE */}
                   <div className="flex items-center justify-between border-b border-studio-border/60 pb-3">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-mono font-black text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">
                         CARD {cardNum}
+                      </span>
+                      <span className="text-xs font-mono font-black text-amber-300 bg-black/60 px-2 py-0.5 rounded border border-amber-500/30">
+                        {item.code || `#${cardNum}`}
                       </span>
                       <span className="text-xs font-bold text-white flex items-center gap-1 bg-neutral-800 px-2.5 py-0.5 rounded-lg border border-neutral-700">
                         <span>{catMeta.icon}</span>
@@ -394,22 +429,31 @@ export const PosterGeneratorForm: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* AUTO-FILL FROM PRODUCT URL BOX */}
+                  {/* AUTO-FILL FROM PRODUCT URL BOX (INSTANT ON PASTE & INPUT) */}
                   <div className="bg-neutral-900/90 border border-neutral-800 rounded-xl p-3 space-y-2">
                     <div className="flex items-center justify-between">
                       <label className="text-[10px] font-bold text-amber-300 flex items-center gap-1">
                         <LinkIcon className="w-3 h-3 text-amber-400" />
-                        Auto-Isi dari Link Produk (Shopee / Web):
+                        Paste Link Affiliate (Shopee / Web) — Otomatis Mengisi:
                       </label>
-                      <span className="text-[9px] text-neutral-400">Opsional</span>
+                      <span className="text-[9px] text-amber-400/90 font-semibold animate-pulse">
+                        ⚡ Otomatis mengisi saat link di-paste
+                      </span>
                     </div>
 
                     <div className="flex items-center gap-1.5">
                       <input
                         type="url"
                         value={item.productUrl || ''}
-                        onChange={e => handleUpdateItem(item.id, 'productUrl', e.target.value)}
-                        placeholder="https://shopee.co.id/..."
+                        onChange={e => {
+                          const val = e.target.value;
+                          handleUpdateItem(item.id, 'productUrl', val);
+                          if (val.trim().startsWith('http://') || val.trim().startsWith('https://')) {
+                            triggerAutoExtract(item.id, val.trim());
+                          }
+                        }}
+                        onPaste={e => handlePasteUrl(item.id, e)}
+                        placeholder="Tempel link Shopee / Affiliate di sini (https://s.shopee.co.id/...)"
                         onKeyDown={e => {
                           if (e.key === 'Enter') {
                             e.preventDefault();
@@ -428,7 +472,7 @@ export const PosterGeneratorForm: React.FC = () => {
                         {isLoadingThisLink ? (
                           <>
                             <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                            Mengambil...
+                            Mengisi...
                           </>
                         ) : (
                           <>
@@ -461,8 +505,11 @@ export const PosterGeneratorForm: React.FC = () => {
                   <div className="grid grid-cols-12 gap-3 items-center pt-1">
                     {/* PHOTO UPLOAD / PREVIEW */}
                     <div className="col-span-4 sm:col-span-3">
-                      <label className="block text-[10px] text-studio-muted mb-1">
-                        Foto Item
+                      <label className="block text-[10px] text-studio-muted mb-1 flex items-center justify-between">
+                        <span>Foto Item</span>
+                        {item.photoUrl && (
+                          <span className="text-[8px] text-emerald-400 font-bold">Terisi</span>
+                        )}
                       </label>
                       <div className="relative w-full aspect-square rounded-xl bg-neutral-900 border border-dashed border-studio-border hover:border-amber-400/60 flex flex-col items-center justify-center overflow-hidden cursor-pointer group/img">
                         {item.photoUrl ? (
@@ -475,7 +522,7 @@ export const PosterGeneratorForm: React.FC = () => {
                           <div className="text-center p-1">
                             <Upload className="w-4 h-4 mx-auto text-studio-muted group-hover/img:text-amber-400 transition-colors" />
                             <span className="text-[8px] text-studio-muted block mt-1">
-                              Upload
+                              Upload / Auto
                             </span>
                           </div>
                         )}
@@ -488,27 +535,45 @@ export const PosterGeneratorForm: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* FIELDS: NAMA, DETAIL, HARGA */}
+                    {/* FIELDS: KODE (#NOMOR), NAMA, DETAIL/BAHAN, HARGA */}
                     <div className="col-span-8 sm:col-span-9 space-y-2">
-                      <div>
-                        <label className="block text-[10px] text-studio-muted mb-0.5">
-                          Nama Item (misal: OVERSIZED TEE)
-                        </label>
-                        <input
-                          type="text"
-                          value={item.name}
-                          onChange={e =>
-                            handleUpdateItem(item.id, 'name', e.target.value.toUpperCase())
-                          }
-                          placeholder="OVERSIZED TEE"
-                          className="w-full bg-studio-bg border border-studio-border focus:border-amber-400 rounded-lg px-2.5 py-1.5 text-xs text-white uppercase font-bold focus:outline-none"
-                        />
+                      <div className="grid grid-cols-12 gap-2">
+                        {/* KODE PRODUK: #NOMOR (INPUT MANUAL) */}
+                        <div className="col-span-4">
+                          <label className="block text-[10px] font-bold text-amber-300 mb-0.5 flex items-center gap-1">
+                            <Hash className="w-3 h-3 text-amber-400" />
+                            Kode (#nomor)
+                          </label>
+                          <input
+                            type="text"
+                            value={item.code ?? ''}
+                            onChange={e => handleUpdateItem(item.id, 'code', e.target.value)}
+                            placeholder={`#0${index + 1}`}
+                            className="w-full bg-black/70 border border-neutral-700 focus:border-amber-400 rounded-lg px-2.5 py-1.5 text-xs text-amber-400 font-mono font-black focus:outline-none"
+                          />
+                        </div>
+
+                        {/* NAMA ITEM */}
+                        <div className="col-span-8">
+                          <label className="block text-[10px] text-studio-muted mb-0.5">
+                            Nama Item (misal: OVERSIZED TEE)
+                          </label>
+                          <input
+                            type="text"
+                            value={item.name}
+                            onChange={e =>
+                              handleUpdateItem(item.id, 'name', e.target.value.toUpperCase())
+                            }
+                            placeholder="OVERSIZED TEE"
+                            className="w-full bg-studio-bg border border-studio-border focus:border-amber-400 rounded-lg px-2.5 py-1.5 text-xs text-white uppercase font-bold focus:outline-none"
+                          />
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <label className="block text-[10px] text-studio-muted mb-0.5">
-                            Detail/Bahan (misal: BLACK COTTON)
+                            Detail / Bahan (misal: COTTON 24S)
                           </label>
                           <input
                             type="text"
@@ -516,7 +581,7 @@ export const PosterGeneratorForm: React.FC = () => {
                             onChange={e =>
                               handleUpdateItem(item.id, 'detail', e.target.value.toUpperCase())
                             }
-                            placeholder="BLACK COTTON"
+                            placeholder="COTTON 24S / BOXY FIT"
                             className="w-full bg-studio-bg border border-studio-border focus:border-amber-400 rounded-lg px-2.5 py-1.5 text-xs text-white uppercase focus:outline-none"
                           />
                         </div>

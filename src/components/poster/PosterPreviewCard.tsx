@@ -95,10 +95,13 @@ export const PosterPreviewCard: React.FC<PosterPreviewCardProps> = ({ data }) =>
                 </div>
                 <div className="overflow-hidden">
                   <div className="flex items-center gap-1">
-                    <span className="text-[10px] font-black uppercase tracking-tight text-neutral-900 truncate">
+                    <span className="text-[7.5px] font-black px-1 py-0.5 rounded bg-black text-amber-400 font-mono shrink-0 shadow-xs">
+                      {item.code?.trim() || `#0${idx + 1}`}
+                    </span>
+                    <span className="text-[9.5px] font-black uppercase tracking-tight text-neutral-900 truncate">
                       {item.name || `ITEM 0${idx + 1}`}
                     </span>
-                    <span className="text-[8px] font-bold px-1 rounded bg-amber-100 text-amber-900 shrink-0">
+                    <span className="text-[7.5px] font-bold px-1 py-0.2 rounded bg-amber-100 text-amber-900 shrink-0">
                       {OUTFIT_CATEGORY_LABELS[item.category || 'other'].icon} {OUTFIT_CATEGORY_LABELS[item.category || 'other'].short}
                     </span>
                   </div>
@@ -110,6 +113,9 @@ export const PosterPreviewCard: React.FC<PosterPreviewCardProps> = ({ data }) =>
               <div className="text-right shrink-0 ml-1">
                 <span className="text-[10px] font-black text-neutral-900 block font-mono">
                   {item.price || 'Rp -'}
+                </span>
+                <span className="text-[7px] font-bold text-neutral-400 block font-mono uppercase">
+                  {item.code?.trim() || `#0${idx + 1}`}
                 </span>
               </div>
             </div>

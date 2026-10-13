@@ -12,6 +12,7 @@ export interface PosterOutfitItem {
   name: string;
   detail: string;
   price: string;
+  code?: string; // e.g. "#01", "#12", "#nomor"
   photoUrl?: string;
   photoName?: string;
   productUrl?: string;
