@@ -88,6 +88,14 @@ DATA SPESIFIKASI:
 - Pose & Bahasa Tubuh: ${input.bodyPose}
 - Ekspresi & Pandangan: ${input.facialExpression}, arah pandangan ${input.gazeDirection}
 - Pakaian & Aksesoris: ${input.outfit}. Aksesoris: ${input.accessories}
+${input.outfitReference?.enabled ? `- Referensi Outfit Khusus (AKTIF - ${input.outfitReference.priority}):
+  * Atasan: ${input.outfitReference.itemDetails.top}
+  * Bawahan: ${input.outfitReference.itemDetails.bottom}
+  * Luaran: ${input.outfitReference.itemDetails.outer || '-'}
+  * Sepatu: ${input.outfitReference.itemDetails.shoes}
+  * Aksesoris Busana: ${input.outfitReference.itemDetails.bagAndAccessories || '-'}
+  * Bahan/Tekstur: ${input.outfitReference.itemDetails.fabricTexture || '-'}` : ''}
+${input.characterSheet?.enabled ? `- Lembar Karakter (Character Sheet AKTIF): Tipe ${input.characterSheet.sheetType}, deskripsi: ${input.characterSheet.sheetDescription}` : ''}
 - Kamera iPhone 13: ${input.cameraDevice} (${input.cameraAngle}, ${input.cameraDistance})
 - Komposisi & Aspek Rasio: ${input.composition}, rasio ${input.aspectRatio}
 - Intensitas Realisme: ${input.realismIntensity}
@@ -102,6 +110,9 @@ Susunlah hasil keluaran dalam JSON valid persis dengan struktur berikut:
   "negativePrompt": "Daftar larangan visual anti-AI spesifik yang relevan",
   "faceLockInstruction": "Instruksi eksplisit untuk model gambar mengenai fitur wajah yang wajib dikunci",
   "bodyLockInstruction": "Instruksi eksplisit mengenai proporsi tubuh dan anatomi yang wajib dijaga",
+  "outfitLockInstruction": "Instruksi eksplisit jika referensi outfit aktif",
+  "characterSheetInstruction": "Instruksi eksplisit jika character sheet aktif",
+  "characterSheetPrompt": "Prompt turnaround 4-sudut jika character sheet aktif",
   "technicalNotes": ["Catatan teknis 1", "Catatan teknis 2"]
 }`;
 
@@ -164,19 +175,22 @@ Susunlah hasil keluaran dalam JSON valid persis dengan struktur berikut:
       },
       faceLockInstruction: parsed.faceLockInstruction || generateDeterministicPhotoPrompt(input).faceLockInstruction,
       bodyLockInstruction: parsed.bodyLockInstruction || generateDeterministicPhotoPrompt(input).bodyLockInstruction,
+      outfitLockInstruction: parsed.outfitLockInstruction || generateDeterministicPhotoPrompt(input).outfitLockInstruction,
+      characterSheetInstruction: parsed.characterSheetInstruction || generateDeterministicPhotoPrompt(input).characterSheetInstruction,
+      characterSheetPrompt: parsed.characterSheetPrompt || generateDeterministicPhotoPrompt(input).characterSheetPrompt,
       characterProfile: {
         name: input.characterName,
         ethnicityAndAge: input.faceLock.ethnicityAndAge,
-        keyFacialFeatures: [
-          'Oval lembut, pipi berisi sehat',
-          'Mata almond cokelat gelap dengan aegyo-sal',
-          'Freckles alami di hidung dan pipi atas',
-          'Tahi lalat kecil di pipi kanan bawah',
-          'Kacamata bingkai logam tipis gunmetal',
-          'Bibir koral lembut dengan garis vertikal mikro',
-          'Rambut panjang dark espresso bergelombang alami & flyaways',
-        ],
-        bodyProportions: 'Tinggi 169 cm, berat 56 kg, siluet jam pasir lembut, bust 42, pinggang 60 cm, tidak berotot, jaringan lembut manusia nyata.',
+        keyFacialFeatures: input.faceLock.enabled ? [
+          input.faceLock.facialStructure || 'Struktur wajah alami',
+          input.faceLock.eyesAndBrows || 'Mata & alis ekspresif',
+          input.faceLock.noseProfile || 'Hidung proporsional',
+          input.faceLock.lipsDetail || 'Bibir lembut alami',
+          input.faceLock.skinDetail || 'Pori-pori mikro nyata',
+        ] : ['Fitur wajah fleksibel alami', 'Pori-pori mikro nyata'],
+        bodyProportions: input.bodyLock.enabled
+          ? `${input.bodyLock.heightAndWeight}, ${input.bodyLock.bodySilhouette}`
+          : 'Proporsi tubuh proporsional alami',
       },
       technicalNotes: parsed.technicalNotes || [
         'Dihasilkan secara cerdas oleh Google Gemini AI dengan Master Photography System Instruction.',

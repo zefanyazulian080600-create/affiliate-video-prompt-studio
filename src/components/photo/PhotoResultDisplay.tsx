@@ -67,7 +67,7 @@ ${result.faceLockInstruction}
 
 [PENGUNCIAN TUBUH]:
 ${result.bodyLockInstruction}
-
+${result.outfitLockInstruction ? `\n[PENGUNCIAN OUTFIT]:\n${result.outfitLockInstruction}\n` : ''}${result.characterSheetInstruction ? `\n[LEMBAR KARAKTER]:\n${result.characterSheetInstruction}\n` : ''}
 [PENGATURAN KAMERA & OPTIK]:
 - Lensa: ${result.photoSettings.focalLength} (${result.photoSettings.aperture})
 - Pencahayaan: ${result.photoSettings.lighting}
@@ -346,6 +346,39 @@ ${result.technicalNotes.map(n => `- ${n}`).join('\n')}
             <span className="text-neutral-400 font-bold block">Instruksi Body Lock Eksplisit:</span>
             <p className="text-neutral-300 whitespace-pre-wrap">{result.bodyLockInstruction}</p>
           </div>
+
+          {result.outfitLockInstruction && (
+            <div className="p-4 bg-neutral-950 border border-amber-900/40 rounded-2xl space-y-2 text-xs">
+              <span className="text-amber-400 font-bold block">Instruksi Referensi Outfit:</span>
+              <p className="text-neutral-300 whitespace-pre-wrap">{result.outfitLockInstruction}</p>
+            </div>
+          )}
+
+          {result.characterSheetInstruction && (
+            <div className="p-4 bg-neutral-950 border border-cyan-900/40 rounded-2xl space-y-2 text-xs">
+              <span className="text-cyan-400 font-bold block">Instruksi Character Sheet:</span>
+              <p className="text-neutral-300 whitespace-pre-wrap">{result.characterSheetInstruction}</p>
+            </div>
+          )}
+
+          {result.characterSheetPrompt && (
+            <div className="p-4 bg-cyan-950/20 border border-cyan-500/40 rounded-2xl space-y-2 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-cyan-300 font-bold">Prompt Generate Turnaround 4-Sudut (Midjourney / Flux):</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(result.characterSheetPrompt || '');
+                    alert('Prompt turnaround tersalin!');
+                  }}
+                  className="px-2 py-0.5 rounded bg-cyan-800 text-white text-[11px] font-semibold"
+                >
+                  Salin Prompt Sheet
+                </button>
+              </div>
+              <p className="text-neutral-300 font-mono text-[11px] whitespace-pre-wrap">{result.characterSheetPrompt}</p>
+            </div>
+          )}
         </div>
       )}
 

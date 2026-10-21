@@ -35,10 +35,7 @@ export function buildPhotoNegativePrompt(input: PhotoGeneratorInput): string {
     
     // Face & Eyes inconsistency
     'deviating facial identity from reference',
-    'different jawline',
-    'missing mole on right cheek',
-    'removing glasses',
-    'missing freckles',
+    'distorted facial structure',
     'asymmetrical cross-eyed irises',
     'hyper-symmetric fake face',
     'glowing eyes',
@@ -72,6 +69,23 @@ export function buildPhotoNegativePrompt(input: PhotoGeneratorInput): string {
       'mirror reflection showing different outfit',
       'mirror reflection showing wrong pose'
     );
+  }
+
+  // Specific additions for Outfit Reference Lock
+  if (input.outfitReference && input.outfitReference.enabled) {
+    baseProhibitions.push(
+      'mismatched outfit pieces',
+      'inconsistent clothing colors',
+      'distorted fabric texture',
+      'floating garment accessories',
+      'asymmetric shoes',
+      'plastic cloth texture'
+    );
+  }
+
+  // Specific additions for Glasses
+  if (input.faceLock.enabled && input.faceLock.glasses) {
+    baseProhibitions.push('removing glasses', 'distorted eyeglass frame', 'opaque eyeglass lenses');
   }
 
   // Include user custom negative if provided

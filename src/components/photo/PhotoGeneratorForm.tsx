@@ -13,9 +13,14 @@ import {
   PHOTO_PRESET_TEMPLATES,
   ANYA_PITALOKA_FACE_LOCK,
   ANYA_PITALOKA_BODY_LOCK,
+  DEFAULT_CHARACTER_SHEET_CONFIG,
+  CHARACTER_PRESETS,
 } from '@/lib/photo-engine/constants';
+import { DEFAULT_OUTFIT_CONFIG } from '@/lib/photo-engine/outfit-presets';
 import { FaceLockPanel } from './FaceLockPanel';
 import { BodyLockPanel } from './BodyLockPanel';
+import { OutfitReferencePanel } from './OutfitReferencePanel';
+import { CharacterSheetPanel } from './CharacterSheetPanel';
 import { IPhone13CameraSelector } from './IPhone13CameraSelector';
 import { PhotoResultDisplay } from './PhotoResultDisplay';
 import {
@@ -212,11 +217,18 @@ export const PhotoGeneratorForm: React.FC = () => {
             <Button
               variant="secondary"
               size="sm"
-              onClick={handleResetToDefault}
+              onClick={() => {
+                setFormData(prev => ({
+                  ...prev,
+                  characterName: 'Anya Pitaloka',
+                  faceLock: ANYA_PITALOKA_FACE_LOCK,
+                  bodyLock: ANYA_PITALOKA_BODY_LOCK,
+                }));
+              }}
               className="text-xs border-violet-500/40 text-violet-300 hover:bg-violet-950/30"
             >
               <UserCheck className="w-3.5 h-3.5 mr-1" />
-              Muat Preset Anya Pitaloka
+              Demo: Anya Pitaloka
             </Button>
             <Button
               variant="secondary"
@@ -225,7 +237,7 @@ export const PhotoGeneratorForm: React.FC = () => {
               className="text-xs text-neutral-400 hover:text-white"
             >
               <RotateCcw className="w-3.5 h-3.5 mr-1" />
-              Reset
+              Reset Kustom
             </Button>
           </div>
         </div>
@@ -289,16 +301,37 @@ export const PhotoGeneratorForm: React.FC = () => {
 
       {/* FORM INPUT SECTIONS */}
       <form onSubmit={handleGenerate} className="space-y-8">
-        {/* FACE LOCK PANEL (BAGIAN D) */}
+        {/* FACE LOCK PANEL (OPSIONAL - BISA MASUKKAN KARAKTER SENDIRI) */}
         <FaceLockPanel
           config={formData.faceLock}
           onChange={updated => setFormData(prev => ({ ...prev, faceLock: updated }))}
+          onCharacterNameChange={name => setFormData(prev => ({ ...prev, characterName: name }))}
         />
 
-        {/* BODY LOCK PANEL (BAGIAN E) */}
+        {/* BODY LOCK PANEL (OPSIONAL) */}
         <BodyLockPanel
           config={formData.bodyLock}
           onChange={updated => setFormData(prev => ({ ...prev, bodyLock: updated }))}
+        />
+
+        {/* CHARACTER SHEET PANEL (OPSIONAL BILA ADA) */}
+        <CharacterSheetPanel
+          config={formData.characterSheet || DEFAULT_CHARACTER_SHEET_CONFIG}
+          onChange={updated => setFormData(prev => ({ ...prev, characterSheet: updated }))}
+          characterName={formData.characterName}
+        />
+
+        {/* OUTFIT REFERENCE PANEL (OPSIONAL - BANYAK PILIHAN OUTFIT) */}
+        <OutfitReferencePanel
+          config={formData.outfitReference || DEFAULT_OUTFIT_CONFIG}
+          onChange={updated => setFormData(prev => ({ ...prev, outfitReference: updated }))}
+          onApplyToSceneOutfit={(fullText, accText) => {
+            setFormData(prev => ({
+              ...prev,
+              outfit: fullText,
+              accessories: accText ? accText : prev.accessories,
+            }));
+          }}
         />
 
         {/* iPHONE 13 CAMERA & OPTICS ENGINE (BAGIAN H) */}

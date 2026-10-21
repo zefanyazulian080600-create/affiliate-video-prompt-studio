@@ -1,4 +1,51 @@
-import { FaceLockConfig, BodyLockConfig, PhotoGeneratorInput, PhotoPresetType } from '@/types/photo';
+import {
+  FaceLockConfig,
+  BodyLockConfig,
+  CharacterSheetConfig,
+  PhotoGeneratorInput,
+  PhotoPresetType,
+} from '@/types/photo';
+import { DEFAULT_OUTFIT_CONFIG } from './outfit-presets';
+
+export const BLANK_CUSTOM_FACE_LOCK: FaceLockConfig = {
+  enabled: false,
+  priority: 'balanced',
+  characterName: 'Karakter Pilihan',
+  ethnicityAndAge: 'Wanita muda Asia (usia 20-25 tahun)',
+  facialStructure: 'Bentuk wajah proporsional alami, garis rahang lembut, senyum natural ramah',
+  skinDetail: 'Tekstur kulit manusia asli dengan pori-pori halus terlihat nyata, tanpa filter airbrush plastik, warna kulit natural',
+  eyesAndBrows: 'Bentuk mata ekspresif alami dengan sorot mata hidup dan pantulan cahaya natural',
+  noseProfile: 'Batang hidung natural proporsional dengan ujung lembut',
+  lipsDetail: 'Bibir lembap alami dengan garis-garis mikro realistis',
+  glasses: '',
+  hairAndFlyaways: 'Rambut tertata santai dengan helaian anak rambut halus (baby hairs) natural',
+  customNotes: '',
+  referenceImages: [],
+};
+
+export const BLANK_CUSTOM_BODY_LOCK: BodyLockConfig = {
+  enabled: false,
+  priority: 'balanced',
+  heightAndWeight: 'Tinggi proporsional (165-170 cm)',
+  bodySilhouette: 'Siluet tubuh proporsional alami wanita, lekuk tubuh sehat dengan gravitasi jaringan alami tanpa editan digital berlebihan',
+  skinTexture: 'Tekstur kulit tubuh nyata dengan bayangan lembut dan lipatan alami persendian',
+  neckAndShoulders: 'Bahu santai rileks, leher proporsional alami',
+  bustDetail: 'Bentuk dada alami proporsional mengikuti gravitasi tubuh nyata',
+  waistAndMidriff: 'Garis pinggang proporsional natural',
+  hipsAndGlutes: 'Pinggul proporsional seimbang',
+  legsAndThighs: 'Kaki jenjang proporsional menapak santai dengan stabil',
+  customNotes: '',
+  referenceImages: [],
+};
+
+export const DEFAULT_CHARACTER_SHEET_CONFIG: CharacterSheetConfig = {
+  enabled: false,
+  sheetType: 'turnaround_4views',
+  imageUrl: '',
+  sheetDescription: 'Lembar karakter 4 sudut (Tampak Depan, Samping Kiri, Samping Kanan, Belakang) pada latar belakang abu-abu studio netral, pencahayaan difus merata, untuk menjaga 100% konsistensi fitur wajah, proporsi tubuh, dan pakaian di seluruh generasi gambar.',
+  customNotes: '',
+  referenceImages: [],
+};
 
 export const ANYA_PITALOKA_FACE_LOCK: FaceLockConfig = {
   enabled: true,
@@ -20,7 +67,7 @@ export const ANYA_PITALOKA_FACE_LOCK: FaceLockConfig = {
   hairAndFlyaways:
     'Rambut panjang berwarna hitam kecokelatan espresso sangat gelap (natural dark espresso brown-black hair), belah tengah alami (natural center part). Bagian atas jatuh lurus lembut membingkai pelipis dan pipi, bergelombang longgar bervolume alami (loose effortless beach waves) dari sebatas telinga ke bawah. Terdapat helaian anak rambut halus (natural flyaways & baby hairs) di sekitar pelipis dan puncak kepala.',
   customNotes:
-    'Pertahankan 100% konsistensi fitur wajah berdasarkan 4-view Face Lock (Depan, Samping, 3/4, Belakang). Jangan mengubah struktur tulang pipi, jangan menghilangkan kacamata gunmetal atau tahi lalat pipi kanan bawah.',
+    'Pertahankan 100% konsistensi fitur wajah berdasarkan 4-view Face Lock (Depan, Samping, 3/4, Belakang). Jangan merombak bentuk rahang, jangan hilangkan kacamata gunmetal atau tahi lalat pipi kanan bawah.',
   referenceImages: [
     {
       id: 'anya-face-sheet',
@@ -61,13 +108,77 @@ export const ANYA_PITALOKA_BODY_LOCK: BodyLockConfig = {
   ],
 };
 
+export const CHARACTER_PRESETS = [
+  {
+    id: 'custom',
+    name: 'Karakter Kustom (Tulis / Masukkan Sendiri)',
+    badge: 'Bebas / Kustom',
+    faceConfig: BLANK_CUSTOM_FACE_LOCK,
+    bodyConfig: BLANK_CUSTOM_BODY_LOCK,
+  },
+  {
+    id: 'anya',
+    name: 'Anya Pitaloka (Demo Benchmark 4-View)',
+    badge: 'Demo Preset',
+    faceConfig: ANYA_PITALOKA_FACE_LOCK,
+    bodyConfig: ANYA_PITALOKA_BODY_LOCK,
+  },
+  {
+    id: 'rania_hijab',
+    name: 'Rania — Hijab Chic Modern',
+    badge: 'Hijab Chic',
+    faceConfig: {
+      ...BLANK_CUSTOM_FACE_LOCK,
+      enabled: true,
+      characterName: 'Rania',
+      ethnicityAndAge: 'Wanita muda Indonesia berhijab (usia 23 tahun)',
+      facialStructure: 'Wajah oval anggun dengan senyum manis lembut dan tatapan mata hangat',
+      skinDetail: 'Kulit sawo matang bersih bercahaya alami, tekstur pori-pori halus sehat',
+      eyesAndBrows: 'Mata cokelat hangat ekspresif dengan riasan mata minimalis natural',
+      hairAndFlyaways: 'Mengenakan pashmina sifon warna mocca lembut yang melilit rapi membingkai wajah manis',
+      glasses: '',
+    },
+    bodyConfig: {
+      ...BLANK_CUSTOM_BODY_LOCK,
+      enabled: true,
+      heightAndWeight: 'Tinggi 165 cm, berat 52 kg',
+      bodySilhouette: 'Proporsi tubuh ramping proporsional, santun dan anggun',
+    },
+  },
+  {
+    id: 'kenzo_casual',
+    name: 'Kenzo — Pria Muda Urban Casual',
+    badge: 'Pria / Male',
+    faceConfig: {
+      ...BLANK_CUSTOM_FACE_LOCK,
+      enabled: true,
+      characterName: 'Kenzo',
+      ethnicityAndAge: 'Pria muda Asia (usia 24 tahun)',
+      facialStructure: 'Garis rahang tegas maskulin, senyum ramah santai, alis tebal rapi',
+      skinDetail: 'Kulit bersih sedikit kecokelatan hangat dengan tekstur pori-pori nyata',
+      eyesAndBrows: 'Sorot mata tajam namun bersahabat, alis hitam tebal alami',
+      hairAndFlyaways: 'Potongan rambut two-block undercut bertekstur alami dengan sedikit helaian jatuh di dahi',
+      glasses: '',
+    },
+    bodyConfig: {
+      ...BLANK_CUSTOM_BODY_LOCK,
+      enabled: true,
+      heightAndWeight: 'Tinggi 178 cm, berat 70 kg',
+      bodySilhouette: 'Siluet tubuh atletis ramping proporsional dengan bahu tegap santai',
+      neckAndShoulders: 'Bahu bidang rileks dengan leher jenjang maskulin',
+    },
+  },
+];
+
 export const DEFAULT_PHOTO_PRESET: PhotoGeneratorInput = {
   mode: 'quick',
   preset: 'candid_street',
-  characterName: 'Anya Pitaloka',
-  faceLock: ANYA_PITALOKA_FACE_LOCK,
-  bodyLock: ANYA_PITALOKA_BODY_LOCK,
-  characterDescription: 'Wanita muda ramah dan anggun, pembawaan tenang bersahaja dengan gaya casual aesthetic.',
+  characterName: 'Karakter Pilihan',
+  faceLock: BLANK_CUSTOM_FACE_LOCK,
+  bodyLock: BLANK_CUSTOM_BODY_LOCK,
+  characterSheet: DEFAULT_CHARACTER_SHEET_CONFIG,
+  outfitReference: DEFAULT_OUTFIT_CONFIG,
+  characterDescription: 'Model wanita muda dengan pembawaan santai natural dan gaya aesthetic.',
   location: 'Jalanan pedestrian asri di daerah Kebayoran Baru, Jakarta Selatan, dengan pepohonan rindang dan kafe di latar belakang',
   timeOfDay: 'Sore hari pukul 16:45 WIB menjelang golden hour',
   lightingCondition: 'Cahaya matahari sore hangat menyinari dari sudut 45 derajat (soft golden hour sidelight) dengan bayangan lembut alami di tanah',

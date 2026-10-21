@@ -51,46 +51,87 @@ export function generateDeterministicPhotoPrompt(input: PhotoGeneratorInput): Ph
   // Face lock instructions
   const faceLockInstruction = input.faceLock.enabled
     ? `PENGUNCIAN IDENTITAS WAJAH (FACE LOCK — PRIORITAS ${input.faceLock.priority.toUpperCase()}):
-Pertahankan identitas wajah berdasarkan 4 sudut foto referensi (Depan, Samping, 3/4, Belakang) yang telah disediakan.
-- Karakter: ${input.faceLock.characterName} (${input.faceLock.ethnicityAndAge}).
-- Bentuk Wajah & Tulang: ${input.faceLock.facialStructure}
-- Ciri Kulit & Tanda Unik: ${input.faceLock.skinDetail}
-- Mata & Alis: ${input.faceLock.eyesAndBrows}
-- Hidung: ${input.faceLock.noseProfile}
-- Bibir: ${input.faceLock.lipsDetail}
-- Kacamata: ${input.faceLock.glasses || 'Sesuai instruksi aksesoris'}
-- Rambut & Anak Rambut: ${input.faceLock.hairAndFlyaways}
-Aturan: Pertahankan identitas visual wajah asli. Jangan merombak bentuk rahang, jangan menghilangkan tahi lalat khas di pipi kanan bawah atau freckles alami hidung.`
-    : 'Face Lock dinonaktifkan: karakteristik wajah fleksibel mengikuti deskripsi umum.';
+Pertahankan identitas wajah berdasarkan deskripsi dan foto referensi yang disediakan:
+- Karakter: ${input.characterName} (${input.faceLock.ethnicityAndAge || 'Wanita muda Asia'}).
+- Bentuk Wajah & Tulang: ${input.faceLock.facialStructure || 'Bentuk wajah proporsional alami'}
+- Ciri Kulit & Tanda Unik: ${input.faceLock.skinDetail || 'Tekstur kulit manusia asli berpori mikro'}
+- Mata & Alis: ${input.faceLock.eyesAndBrows || 'Mata ekspresif alami'}
+- Hidung: ${input.faceLock.noseProfile || 'Batang hidung natural'}
+- Bibir: ${input.faceLock.lipsDetail || 'Bibir lembut natural'}
+- Kacamata: ${input.faceLock.glasses || 'Tidak ada kacamata khusus'}
+- Rambut & Anak Rambut: ${input.faceLock.hairAndFlyaways || 'Rambut bervolume alami'}
+${input.faceLock.customNotes ? `- Catatan Kustom: ${input.faceLock.customNotes}\n` : ''}Aturan: Pertahankan identitas visual wajah asli. Jangan merombak struktur wajah atau mengubah usia secara drastis.`
+    : 'Face Lock dinonaktifkan (Opsional): karakteristik wajah fleksibel mengikuti konsep umum adegan.';
 
   // Body lock instructions
   const bodyLockInstruction = input.bodyLock.enabled
     ? `PENGUNCIAN PROPORSI TUBUH (BODY LOCK — PRIORITAS ${input.bodyLock.priority.toUpperCase()}):
-Pertahankan proporsi tubuh berdasarkan foto referensi tubuh headless (Depan, Samping, Belakang, 3/4):
-- Tinggi & Berat Badan: ${input.bodyLock.heightAndWeight}
-- Siluet Tubuh: ${input.bodyLock.bodySilhouette}
-- Tekstur Kulit Tubuh: ${input.bodyLock.skinTexture}
-- Leher, Bahu & Lengan: ${input.bodyLock.neckAndShoulders}
-- Dada: ${input.bodyLock.bustDetail}
-- Pinggang & Perut: ${input.bodyLock.waistAndMidriff}
-- Pinggul & Bokong: ${input.bodyLock.hipsAndGlutes}
-- Kaki & Paha: ${input.bodyLock.legsAndThighs}
-Aturan: Pertahankan siluet tubuh jam pasir alami yang lembut, berisi, dan tidak berotot. Gravitasi payudara dan jaringan kulit harus masuk akal secara anatomis.`
-    : 'Body Lock dinonaktifkan: proporsi tubuh fleksibel mengikuti deskripsi umum.';
+Pertahankan proporsi tubuh berdasarkan deskripsi dan referensi anatomi yang disediakan:
+- Tinggi & Berat Badan: ${input.bodyLock.heightAndWeight || 'Proporsional natural'}
+- Siluet Tubuh: ${input.bodyLock.bodySilhouette || 'Siluet tubuh manusia sejati'}
+- Tekstur Kulit Tubuh: ${input.bodyLock.skinTexture || 'Tekstur kulit nyata dengan lipatan persendian alami'}
+- Leher, Bahu & Lengan: ${input.bodyLock.neckAndShoulders || 'Bahu dan leher proporsional'}
+- Dada: ${input.bodyLock.bustDetail || 'Bentuk dada mengikuti gravitasi alami'}
+- Pinggang & Perut: ${input.bodyLock.waistAndMidriff || 'Garis pinggang alami tanpa editan berlebihan'}
+- Pinggul & Bokong: ${input.bodyLock.hipsAndGlutes || 'Pinggul proporsional'}
+- Kaki & Paha: ${input.bodyLock.legsAndThighs || 'Kaki jenjang proporsional'}
+${input.bodyLock.customNotes ? `- Catatan Kustom: ${input.bodyLock.customNotes}\n` : ''}Aturan: Pertahankan proporsi tubuh dan berat jaringan lunak alami. Gravitasi tubuh dan jaringan kulit harus masuk akal secara anatomis.`
+    : 'Body Lock dinonaktifkan (Opsional): proporsi tubuh fleksibel mengikuti konsep umum adegan.';
+
+  // Outfit lock instructions
+  const isOutfitRefActive = Boolean(input.outfitReference && input.outfitReference.enabled);
+  const outfitLockInstruction = isOutfitRefActive
+    ? `PENGUNCIAN REFERENSI OUTFIT (OUTFIT LOCK — PRIORITAS ${input.outfitReference!.priority.toUpperCase()}):
+Pertahankan pakaian persis sesuai referensi yang ditentukan:
+- Atasan (Top): ${input.outfitReference!.itemDetails.top || '-'}
+- Bawahan (Bottom): ${input.outfitReference!.itemDetails.bottom || '-'}
+- Luaran (Outerwear): ${input.outfitReference!.itemDetails.outer || '-'}
+- Alas Kaki (Shoes): ${input.outfitReference!.itemDetails.shoes || '-'}
+- Tas & Aksesoris Busana: ${input.outfitReference!.itemDetails.bagAndAccessories || '-'}
+- Material & Tekstur Kain: ${input.outfitReference!.itemDetails.fabricTexture || 'Serat kain alami realistis'}
+${input.outfitReference!.customNotes ? `- Catatan Khusus: ${input.outfitReference!.customNotes}\n` : ''}Aturan: Pertahankan konsistensi warna, model, dan tekstur pakaian di setiap sudut pemotretan.`
+    : undefined;
+
+  // Character Sheet instructions
+  const isCharSheetActive = Boolean(input.characterSheet && input.characterSheet.enabled);
+  const characterSheetInstruction = isCharSheetActive
+    ? `REFERENSI LEMBAR KARAKTER (CHARACTER SHEET AKTIF):
+Mengacu pada lembar karakter konsisten (${input.characterSheet!.sheetType}):
+- Deskripsi Lembar: ${input.characterSheet!.sheetDescription || 'Lembar karakter 4-view multiaxis'}
+${input.characterSheet!.imageUrl ? `- Sumber Referensi Gambar: ${input.characterSheet!.imageUrl}\n` : ''}Aturan: Jaga 100% konsistensi fitur wajah, proporsi fisik, dan elemen visual yang tercantum dalam lembar karakter.`
+    : undefined;
+
+  // Character Sheet Turnaround Prompt for generation
+  const characterSheetPrompt = isCharSheetActive
+    ? `Character design turnaround sheet, 4 multiple angles of the same person on a single image (full front view, side left profile, side right profile, back view), model sheet, character reference sheet, ultra photorealistic, neutral grey studio background, even soft diffuse lighting, identical facial features, consistent hairstyle and clothing, captured on 50mm portrait lens, 8k resolution, raw photo aesthetic --ar 16:9`
+    : undefined;
+
+  // Build narrative sections
+  const faceNarrative = input.faceLock.enabled
+    ? `Subjek utama adalah ${input.characterName}, seorang ${input.faceLock.ethnicityAndAge}. Wajah dan kepalanya mengunci identitas visual foto referensi secara konsisten: ${input.faceLock.facialStructure}. Ciri kulit: ${input.faceLock.skinDetail}. Mata dan alis: ${input.faceLock.eyesAndBrows}. Hidung: ${input.faceLock.noseProfile}. Bibir: ${input.faceLock.lipsDetail}. Rambut: ${input.faceLock.hairAndFlyaways}.${input.faceLock.glasses ? ` Aksesoris wajah: ${input.faceLock.glasses}.` : ''}`
+    : `Subjek utama adalah ${input.characterName || 'seorang model'}${input.characterDescription ? `, ${input.characterDescription}` : ''}. Karakteristik wajah memiliki daya tarik alami manusia sejati, ekspresi wajah: ${input.facialExpression}, tatapan mata terarah ${input.gazeDirection}. Tekstur kulit wajah mentah menampilkan pori-pori mikro nyata tanpa efek airbrush plastik CGI.`;
+
+  const bodyNarrative = input.bodyLock.enabled
+    ? `Bentuk tubuh subjek mengunci proporsi anatomi terstandarisasi (${input.bodyLock.heightAndWeight}): ${input.bodyLock.bodySilhouette}. Dada: ${input.bodyLock.bustDetail}. Pinggang: ${input.bodyLock.waistAndMidriff}. Pinggul & kaki: ${input.bodyLock.hipsAndGlutes}, ${input.bodyLock.legsAndThighs}. Postur tubuh: ${input.bodyPose}, dengan bahu rileks dan distribusi tumpuan berat badan yang natural.`
+    : `Proporsi tubuh subjek tampil natural dan harmonis dengan postur: ${input.bodyPose}. Seluruh lekuk tubuh, bahu, dan persendian memiliki kelenturan alami manusia nyata tanpa kekakuan digital.`;
+
+  const outfitNarrative = isOutfitRefActive && input.outfitReference
+    ? `Subjek mengenakan setelan busana terkurasi: atasan ${input.outfitReference.itemDetails.top}, dipadukan dengan bawahan ${input.outfitReference.itemDetails.bottom}${input.outfitReference.itemDetails.outer ? `, serta luaran ${input.outfitReference.itemDetails.outer}` : ''}. Alas kaki: ${input.outfitReference.itemDetails.shoes}. Tas & aksesoris busana: ${input.outfitReference.itemDetails.bagAndAccessories || input.accessories}. Tekstur kain: ${input.outfitReference.itemDetails.fabricTexture || 'serat kain alami dengan lipatan dan ketegangan bahan yang realistis mengikuti gerak tubuh'}.`
+    : `Subjek mengenakan ${input.outfit}. Tekstur serat kain pakaian tampak nyata dengan lipatan, peregangan kain, serta jahitan tepi pakaian yang presisi mengikuti gerak tubuh secara fisik. Aksesoris pelengkap: ${input.accessories}.`;
 
   // Construct the narrative main prompt in natural Indonesian
   const mirrorSection = optics.mirrorSelfieRules ? `\n\n${optics.mirrorSelfieRules}` : '';
 
   const mainPrompt = `Foto candid gaya hidup yang sangat realistis (photorealistic candid lifestyle photography), diambil secara autentik menggunakan kamera ${cameraDetails.name} dalam situasi kehidupan nyata, dengan pencahayaan natural, tekstur kulit mentah tanpa sentuhan airbrush, dan proporsi anatomi manusia sejati.
 
-1. SUBJEK & IDENTITAS KARAKTER (KONSISTENSI REFERENSI):
-Subjek utama adalah ${input.characterName}, seorang ${input.faceLock.ethnicityAndAge}. Wajah dan kepalanya mengunci identitas visual foto referensi secara ketat: bentuk wajah oval dengan pipi lembut berisi, sepasang mata almond cokelat gelap ekspresif berbingkai kacamata tipis gunmetal, hidung mancung natural berujung membulat manis dengan taburan freckles halus di punggung hidung, serta satu tahi lalat kecil yang terlihat jelas di pipi kanan bawah. Bibir penuh kemerahan koral lembut dengan lipatan alami, membingkai senyum tipis tertutup yang hangat. Rambut panjang berwarna cokelat espresso gelap bergelombang longgar bervolume alami (loose beach waves) terbelah tengah, dengan anak rambut halus (baby hairs & flyaways) yang berkilau lembut terkena cahaya matahari.
+1. SUBJEK & IDENTITAS KARAKTER:
+${faceNarrative}
 
-2. PROPORSI ANATOMI & POSTUR TUBUH (BODY LOCK):
-Bentuk tubuh subjek mengikuti siluet jam pasir feminin yang proporsional (tinggi 169 cm, berat 56 kg), lembut dan berisi alami tanpa definisi otot binaraga. Proporsi dada ukuran 42 yang padat dan bervolume jatuh mengikuti gravitasi alami tubuh, pinggang ramping 60 cm yang melengkung mulus ke pinggul feminin yang bulat dan berisi, serta sepasang kaki jenjang yang ramping memanjang secara harmonis. Postur tubuh: ${input.bodyPose}, dengan bahu rileks dan distribusi tumpuan berat badan yang natural.
+2. PROPORSI ANATOMI & POSTUR TUBUH:
+${bodyNarrative}
 
 3. PAKAIAN & AKSESORIS:
-Subjek mengenakan ${input.outfit}. Tekstur serat kain pakaian tampak nyata dengan lipatan, peregangan kain di area dada dan pinggul, serta jahitan tepi pakaian yang presisi mengikuti gerak tubuh secara fisik. Aksesoris pelengkap: ${input.accessories}.
+${outfitNarrative}
 
 4. LOKASI, SUASANA & TATA CAHAYA:
 Lokasi pemotretan berada di ${input.location}, pada waktu ${input.timeOfDay}. Pencahayaan: ${input.lightingCondition}. Arah cahaya menciptakan bayangan lembut yang masuk akal di lekuk pipi, bawah dagu, dan lantai, tanpa pencahayaan ganda atau kilau buatan yang bertentangan.
@@ -106,6 +147,16 @@ Direkam menggunakan ${optics.deviceDescription}
 ${humanRealism.skinRealismBlock}
 
 Hasil akhir harus memancarkan estetika foto candid smartphone iPhone 13 asli yang diambil oleh seorang teman di dunia nyata — jernih, hangat, penuh kehidupan, dan 100% bebas dari ciri visual generatif AI.`.trim();
+
+  const keyFeatures = input.faceLock.enabled
+    ? [
+        input.faceLock.facialStructure || 'Struktur wajah alami',
+        input.faceLock.eyesAndBrows || 'Mata & alis ekspresif',
+        input.faceLock.noseProfile || 'Hidung proporsional',
+        input.faceLock.lipsDetail || 'Bibir lembut alami',
+        input.faceLock.skinDetail || 'Pori-pori mikro nyata',
+      ]
+    : ['Fitur wajah fleksibel alami', 'Pori-pori mikro nyata tanpa airbrush', 'Ekspresi ramah natural'];
 
   return {
     id: `photo-prompt-${Date.now()}`,
@@ -124,19 +175,16 @@ Hasil akhir harus memancarkan estetika foto candid smartphone iPhone 13 asli yan
     },
     faceLockInstruction,
     bodyLockInstruction,
+    outfitLockInstruction,
+    characterSheetInstruction,
+    characterSheetPrompt,
     characterProfile: {
       name: input.characterName,
-      ethnicityAndAge: input.faceLock.ethnicityAndAge,
-      keyFacialFeatures: [
-        'Oval lembut, pipi berisi sehat',
-        'Mata almond cokelat gelap dengan aegyo-sal',
-        'Freckles alami di hidung dan pipi atas',
-        'Tahi lalat kecil di pipi kanan bawah',
-        'Kacamata bingkai logam tipis gunmetal',
-        'Bibir koral lembut dengan garis vertikal mikro',
-        'Rambut panjang dark espresso bergelombang alami & flyaways',
-      ],
-      bodyProportions: 'Tinggi 169 cm, berat 56 kg, siluet jam pasir lembut, bust 42, pinggang 60 cm, tidak berotot, jaringan lembut manusia nyata.',
+      ethnicityAndAge: input.faceLock.ethnicityAndAge || 'Wanita muda Asia',
+      keyFacialFeatures: keyFeatures,
+      bodyProportions: input.bodyLock.enabled
+        ? `${input.bodyLock.heightAndWeight}, ${input.bodyLock.bodySilhouette}`
+        : 'Proporsi tubuh proporsional alami',
     },
     technicalNotes: [
       'Gunakan foto referensi Face Lock dan Body Lock terlampir sebagai panduan visual identitas karakter.',

@@ -52,6 +52,47 @@ export interface CharacterReferenceImage {
   caption?: string;
 }
 
+export interface CharacterSheetConfig {
+  enabled: boolean;
+  sheetType: 'turnaround_4views' | 'expression_sheet' | 'full_concept_sheet' | 'custom';
+  imageUrl?: string;
+  sheetDescription?: string;
+  customNotes?: string;
+  referenceImages?: CharacterReferenceImage[];
+}
+
+export interface OutfitItemDetail {
+  top: string;
+  bottom: string;
+  outer?: string;
+  shoes: string;
+  bagAndAccessories?: string;
+  fabricTexture?: string;
+}
+
+export interface OutfitReferencePreset {
+  id: string;
+  name: string;
+  category: 'casual' | 'korean_street' | 'aesthetic_cafe' | 'smart_casual' | 'heritage' | 'summer_resort' | 'sporty' | 'cozy';
+  categoryLabel: string;
+  description: string;
+  details: OutfitItemDetail;
+  fullDescription: string;
+  tags: string[];
+}
+
+export interface OutfitReferenceConfig {
+  enabled: boolean;
+  priority: LockPriorityLevel;
+  presetId?: string;
+  presetName?: string;
+  category?: string;
+  itemDetails: OutfitItemDetail;
+  fullDescription: string;
+  referenceImages: CharacterReferenceImage[];
+  customNotes?: string;
+}
+
 export interface FaceLockConfig {
   enabled: boolean;
   priority: LockPriorityLevel;
@@ -92,6 +133,7 @@ export interface PhotoGeneratorInput {
   characterName: string;
   faceLock: FaceLockConfig;
   bodyLock: BodyLockConfig;
+  characterSheet?: CharacterSheetConfig;
   characterDescription?: string;
 
   // Scene & Setting
@@ -103,6 +145,9 @@ export interface PhotoGeneratorInput {
   gazeDirection: string;
   outfit: string;
   accessories: string;
+
+  // Outfit Reference (Optional)
+  outfitReference?: OutfitReferenceConfig;
 
   // Camera & iPhone 13 Realism
   cameraDevice: CameraDeviceType;
@@ -135,6 +180,9 @@ export interface PhotoGeneratedOutput {
   };
   faceLockInstruction: string;
   bodyLockInstruction: string;
+  outfitLockInstruction?: string;
+  characterSheetInstruction?: string;
+  characterSheetPrompt?: string;
   characterProfile: {
     name: string;
     ethnicityAndAge: string;
@@ -170,33 +218,70 @@ export const CharacterReferenceImageSchema = z.object({
   caption: z.string().optional(),
 });
 
+export const OutfitItemDetailSchema = z.object({
+  top: z.string().default(''),
+  bottom: z.string().default(''),
+  outer: z.string().optional().default(''),
+  shoes: z.string().default(''),
+  bagAndAccessories: z.string().optional().default(''),
+  fabricTexture: z.string().optional().default(''),
+});
+
+export const OutfitReferenceConfigSchema = z.object({
+  enabled: z.boolean().default(false),
+  priority: z.enum(['strict', 'balanced', 'flexible']).default('balanced'),
+  presetId: z.string().optional(),
+  presetName: z.string().optional(),
+  category: z.string().optional(),
+  itemDetails: OutfitItemDetailSchema.default({
+    top: '',
+    bottom: '',
+    outer: '',
+    shoes: '',
+    bagAndAccessories: '',
+    fabricTexture: '',
+  }),
+  fullDescription: z.string().default(''),
+  referenceImages: z.array(CharacterReferenceImageSchema).default([]),
+  customNotes: z.string().optional(),
+});
+
+export const CharacterSheetConfigSchema = z.object({
+  enabled: z.boolean().default(false),
+  sheetType: z.enum(['turnaround_4views', 'expression_sheet', 'full_concept_sheet', 'custom']).default('turnaround_4views'),
+  imageUrl: z.string().optional(),
+  sheetDescription: z.string().optional(),
+  customNotes: z.string().optional(),
+  referenceImages: z.array(CharacterReferenceImageSchema).default([]),
+});
+
 export const FaceLockConfigSchema = z.object({
-  enabled: z.boolean().default(true),
-  priority: z.enum(['strict', 'balanced', 'flexible']).default('strict'),
-  characterName: z.string().default('Anya Pitaloka'),
-  ethnicityAndAge: z.string().default('Wanita muda Indonesia-Asia Timur (22-24 tahun)'),
-  facialStructure: z.string(),
-  skinDetail: z.string(),
-  eyesAndBrows: z.string(),
-  noseProfile: z.string(),
-  lipsDetail: z.string(),
+  enabled: z.boolean().default(false),
+  priority: z.enum(['strict', 'balanced', 'flexible']).default('balanced'),
+  characterName: z.string().default('Karakter Kustom'),
+  ethnicityAndAge: z.string().default('Wanita muda Asia (usia 20-25 tahun)'),
+  facialStructure: z.string().default(''),
+  skinDetail: z.string().default(''),
+  eyesAndBrows: z.string().default(''),
+  noseProfile: z.string().default(''),
+  lipsDetail: z.string().default(''),
   glasses: z.string().default(''),
-  hairAndFlyaways: z.string(),
+  hairAndFlyaways: z.string().default(''),
   customNotes: z.string().optional(),
   referenceImages: z.array(CharacterReferenceImageSchema).default([]),
 });
 
 export const BodyLockConfigSchema = z.object({
-  enabled: z.boolean().default(true),
-  priority: z.enum(['strict', 'balanced', 'flexible']).default('strict'),
-  heightAndWeight: z.string().default('169 cm, 56 kg'),
-  bodySilhouette: z.string(),
-  skinTexture: z.string(),
-  neckAndShoulders: z.string(),
-  bustDetail: z.string(),
-  waistAndMidriff: z.string(),
-  hipsAndGlutes: z.string(),
-  legsAndThighs: z.string(),
+  enabled: z.boolean().default(false),
+  priority: z.enum(['strict', 'balanced', 'flexible']).default('balanced'),
+  heightAndWeight: z.string().default('Proporsional natural (165-170 cm)'),
+  bodySilhouette: z.string().default(''),
+  skinTexture: z.string().default(''),
+  neckAndShoulders: z.string().default(''),
+  bustDetail: z.string().default(''),
+  waistAndMidriff: z.string().default(''),
+  hipsAndGlutes: z.string().default(''),
+  legsAndThighs: z.string().default(''),
   customNotes: z.string().optional(),
   referenceImages: z.array(CharacterReferenceImageSchema).default([]),
 });
@@ -221,9 +306,10 @@ export const PhotoGeneratorInputSchema = z.object({
     'custom',
   ]).default('candid_street'),
   customScenePrompt: z.string().optional(),
-  characterName: z.string().default('Anya Pitaloka'),
+  characterName: z.string().default('Karakter Model'),
   faceLock: FaceLockConfigSchema,
   bodyLock: BodyLockConfigSchema,
+  characterSheet: CharacterSheetConfigSchema.optional(),
   characterDescription: z.string().optional(),
   location: z.string().default('Kafe semi-outdoor di Jakarta Selatan'),
   timeOfDay: z.string().default('Sore hari menjelang golden hour (16:30 WIB)'),
@@ -233,6 +319,7 @@ export const PhotoGeneratorInputSchema = z.object({
   gazeDirection: z.string().default('Melihat ke arah lensa kamera'),
   outfit: z.string().default('Cardigan rajut warna oatmeal, tanktop katun putih, celana jeans relaxed cut'),
   accessories: z.string().default('Kacamata optik bingkai logam tipis gunmetal, tote bag kain krem'),
+  outfitReference: OutfitReferenceConfigSchema.optional(),
   cameraDevice: z.enum([
     'iphone13_main_back',
     'iphone13_ultra_wide',

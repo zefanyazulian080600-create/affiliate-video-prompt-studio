@@ -2,7 +2,18 @@
 
 import React, { useState } from 'react';
 import { BodyLockConfig, LockPriorityLevel, CharacterReferenceImage } from '@/types/photo';
-import { ShieldCheck, Upload, Trash2, CheckCircle2, Eye, User } from 'lucide-react';
+import {
+  ShieldCheck,
+  Upload,
+  Trash2,
+  CheckCircle2,
+  Sliders,
+  ChevronDown,
+  ChevronUp,
+  User,
+  Sparkles,
+  Edit3,
+} from 'lucide-react';
 
 interface BodyLockPanelProps {
   config: BodyLockConfig;
@@ -18,6 +29,13 @@ export const BodyLockPanel: React.FC<BodyLockPanelProps> = ({ config, onChange }
 
   const handleToggle = () => {
     onChange({ ...config, enabled: !config.enabled });
+  };
+
+  const handleFieldChange = (field: keyof BodyLockConfig, val: any) => {
+    onChange({
+      ...config,
+      [field]: val,
+    });
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,14 +82,17 @@ export const BodyLockPanel: React.FC<BodyLockPanelProps> = ({ config, onChange }
           <div>
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               BODY LOCK — Penguncian Proporsi Tubuh (Headless)
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-neutral-800 text-neutral-300 border border-neutral-700">
+                Opsional
+              </span>
               {config.enabled && (
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-800/60">
-                  LOCKED
+                  AKTIF ({config.priority.toUpperCase()})
                 </span>
               )}
             </h3>
             <p className="text-[11px] text-neutral-400">
-              Proporsi: <strong className="text-indigo-300">{config.heightAndWeight}</strong> • Siluet Jam Pasir Alami
+              Proporsi: <strong className="text-indigo-300">{config.heightAndWeight || 'Proporsional'}</strong> • Menjaga gravitasi & anatomi alami
             </p>
           </div>
         </div>
@@ -79,150 +100,241 @@ export const BodyLockPanel: React.FC<BodyLockPanelProps> = ({ config, onChange }
         <button
           type="button"
           onClick={handleToggle}
-          className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
             config.enabled
               ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
               : 'bg-neutral-800 text-neutral-400 hover:text-white'
           }`}
         >
-          {config.enabled ? 'Body Lock Aktif' : 'Aktifkan'}
+          {config.enabled ? '✓ Body Lock Aktif' : '+ Aktifkan Body Lock'}
         </button>
       </div>
 
-      {/* Priority Level Buttons */}
-      <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-neutral-300 flex items-center justify-between">
-          <span>Tingkat Prioritas Body Lock:</span>
-          <span className="text-[10px] text-neutral-400">Instruksi proporsi ke AI</span>
-        </label>
-        <div className="grid grid-cols-3 gap-2">
-          {(['strict', 'balanced', 'flexible'] as LockPriorityLevel[]).map(level => {
-            const isSelected = config.priority === level;
-            const labels: Record<LockPriorityLevel, { title: string; desc: string }> = {
-              strict: { title: 'Ketat (Strict)', desc: 'Pertahankan proporsi 169cm/56kg, bust 42, pinggang 60cm' },
-              balanced: { title: 'Seimbang', desc: 'Proporsi dijaga dengan kebebasan pose baru' },
-              flexible: { title: 'Fleksibel', desc: 'Karakteristik umum tubuh jam pasir' },
-            };
-            return (
-              <button
-                key={level}
-                type="button"
-                onClick={() => handlePriorityChange(level)}
-                className={`p-2.5 rounded-xl border text-left transition-all ${
-                  isSelected
-                    ? 'border-indigo-500 bg-indigo-950/40 text-white shadow-sm'
-                    : 'border-neutral-800 bg-neutral-900/60 text-neutral-400 hover:border-neutral-700 hover:text-neutral-200'
-                }`}
-              >
-                <div className="text-xs font-bold flex items-center justify-between">
-                  <span>{labels[level].title}</span>
-                  {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400" />}
-                </div>
-                <div className="text-[10px] text-neutral-400 mt-0.5 line-clamp-2">
-                  {labels[level].desc}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Visual Reference Gallery */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <label className="text-xs font-semibold text-neutral-300">
-            Foto Referensi Tubuh Headless (4 Views: Depan, Samping, Belakang, 3/4)
-          </label>
-          <span className="text-[10px] text-neutral-400">
-            {config.referenceImages.length} Referensi Terpasang
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {config.referenceImages.map((img, idx) => (
-            <div
-              key={img.id}
-              className="relative aspect-square rounded-xl overflow-hidden border border-neutral-700 bg-black group"
-            >
-              <img
-                src={img.url}
-                alt={img.caption || `Body reference ${idx + 1}`}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
-                <button
-                  type="button"
-                  onClick={() => handleRemoveImage(img.id)}
-                  className="self-end p-1 rounded-md bg-red-600/80 text-white hover:bg-red-600 transition-colors"
-                  title="Hapus referensi ini"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-                <span className="text-[9px] text-white font-mono truncate">
-                  {img.caption || `Body Ref #${idx + 1}`}
-                </span>
-              </div>
-            </div>
-          ))}
-
-          {/* Upload Button */}
-          <label className="relative aspect-square rounded-xl border-2 border-dashed border-neutral-700 hover:border-indigo-500/60 bg-neutral-900/40 hover:bg-indigo-950/20 flex flex-col items-center justify-center cursor-pointer transition-all p-2 text-center group">
-            <Upload className="w-5 h-5 text-neutral-400 group-hover:text-indigo-400 transition-colors" />
-            <span className="text-[10px] font-semibold text-neutral-300 mt-1 block">
-              + Unggah Tubuh
-            </span>
-            <span className="text-[8px] text-neutral-400">Maks 5MB (JPG/PNG)</span>
+      {config.enabled ? (
+        <div className="space-y-4">
+          {/* Tinggi & Berat Badan */}
+          <div className="p-3 rounded-xl bg-neutral-950/50 border border-neutral-800">
+            <label className="text-[10px] font-semibold text-neutral-400 block mb-1">
+              Tinggi & Berat Badan:
+            </label>
             <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleFileUpload}
-              className="hidden"
+              type="text"
+              value={config.heightAndWeight}
+              onChange={e => handleFieldChange('heightAndWeight', e.target.value)}
+              placeholder="misal: Tinggi 168 cm, berat 54 kg / Proporsional natural"
+              className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500"
             />
-          </label>
-        </div>
-      </div>
+          </div>
 
-      {/* Anatomical Details Inspector (Toggleable) */}
-      <div className="border-t border-neutral-800/80 pt-3">
-        <button
-          type="button"
-          onClick={() => setShowDetails(!showDetails)}
-          className="text-xs font-semibold text-indigo-300 hover:text-indigo-200 flex items-center gap-1.5 focus:outline-none"
-        >
-          <Eye className="w-3.5 h-3.5" />
-          {showDetails ? 'Tutup Parameter Anatomi' : 'Periksa Parameter Anatomi Tubuh Terkunci'}
-        </button>
+          {/* Area Input Prompt Tubuh Sendiri (Bebas / Kustom) */}
+          <div className="p-3.5 rounded-xl bg-indigo-950/20 border border-indigo-500/30 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
+                <Edit3 className="w-3.5 h-3.5" />
+                Prompt Tubuh Kustom Sendiri (Bebas Masukkan Proporsi & Bentuk Tubuh):
+              </label>
+              <span className="text-[10px] text-neutral-400">Dimasukkan langsung ke model</span>
+            </div>
+            <textarea
+              value={config.customNotes || ''}
+              onChange={e => handleFieldChange('customNotes', e.target.value)}
+              rows={3}
+              placeholder="Tulis deskripsi proporsi tubuh karakter Anda sendiri... (misal: Siluet tubuh feminin ramping berisi alami, bahu rileks, pinggang ramping 62 cm, kaki jenjang proporsional, tanpa otot kekar berlebihan, tekstur kulit tubuh sehat alami)."
+              className="w-full bg-neutral-950 border border-neutral-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 leading-relaxed"
+            />
+          </div>
 
-        {showDetails && (
-          <div className="mt-3 p-3.5 bg-black/50 border border-neutral-800 rounded-xl space-y-2.5 text-xs">
-            <div>
-              <span className="text-indigo-400 font-bold block">Siluet & Karakteristik Tubuh:</span>
-              <p className="text-neutral-300 text-[11px] mt-0.5">{config.bodySilhouette}</p>
-            </div>
-            <div>
-              <span className="text-indigo-400 font-bold block">Dada (Bust 42) & Gravitasi Alami:</span>
-              <p className="text-neutral-300 text-[11px] mt-0.5">{config.bustDetail}</p>
-            </div>
-            <div>
-              <span className="text-indigo-400 font-bold block">Pinggang & Perut (60 cm — Tanpa Otot/Abs):</span>
-              <p className="text-neutral-300 text-[11px] mt-0.5">{config.waistAndMidriff}</p>
-            </div>
-            <div>
-              <span className="text-indigo-400 font-bold block">Pinggul & Bokong:</span>
-              <p className="text-neutral-300 text-[11px] mt-0.5">{config.hipsAndGlutes}</p>
-            </div>
-            <div>
-              <span className="text-indigo-400 font-bold block">Kaki & Paha Jenjang (169 cm):</span>
-              <p className="text-neutral-300 text-[11px] mt-0.5">{config.legsAndThighs}</p>
-            </div>
-            <div>
-              <span className="text-indigo-400 font-bold block">Tekstur Kulit Tubuh (Vellus Hair & Lipatan Sendi):</span>
-              <p className="text-neutral-300 text-[11px] mt-0.5">{config.skinTexture}</p>
+          {/* Priority Level Buttons */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-neutral-300 flex items-center justify-between">
+              <span>Tingkat Kunci Body Lock:</span>
+              <span className="text-[10px] text-neutral-400">Instruksi ke Gemini & AI</span>
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { id: 'strict', label: 'Ketat (Strict)', desc: 'Proporsi tubuh dikunci ketat 100%' },
+                { id: 'balanced', label: 'Seimbang (Balanced)', desc: 'Siluet dijaga dengan adaptasi pose' },
+                { id: 'flexible', label: 'Fleksibel (Flexible)', desc: 'Proporsi umum tanpa angka mutlak' },
+              ].map(level => {
+                const isSelected = config.priority === level.id;
+                return (
+                  <button
+                    key={level.id}
+                    type="button"
+                    onClick={() => handlePriorityChange(level.id as LockPriorityLevel)}
+                    className={`p-2.5 rounded-xl border text-left transition-all ${
+                      isSelected
+                        ? 'border-indigo-500 bg-indigo-950/40 text-white ring-1 ring-indigo-500/50'
+                        : 'border-neutral-800 bg-neutral-950/40 text-neutral-400 hover:border-neutral-700 hover:text-neutral-200'
+                    }`}
+                  >
+                    <div className="text-xs font-bold">{level.label}</div>
+                    <div className="text-[10px] text-neutral-400 mt-0.5 line-clamp-1">{level.desc}</div>
+                  </button>
+                );
+              })}
             </div>
           </div>
-        )}
-      </div>
+
+          {/* Area Unggah Foto Referensi Tubuh */}
+          <div className="p-3.5 rounded-xl border border-neutral-800 bg-neutral-950/50 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-neutral-300">
+                Foto Referensi Tubuh / Headless (Bila Ada / Opsional):
+              </span>
+              <label className="cursor-pointer px-2.5 py-1 bg-indigo-950/70 hover:bg-indigo-900 border border-indigo-800/50 text-indigo-200 text-xs rounded-lg flex items-center gap-1 font-semibold transition-all">
+                <Upload className="w-3.5 h-3.5" />
+                Unggah Foto Tubuh
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={handleFileUpload}
+                />
+              </label>
+            </div>
+
+            {config.referenceImages.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {config.referenceImages.map(img => (
+                  <div
+                    key={img.id}
+                    className="relative w-20 h-24 rounded-lg overflow-hidden border border-neutral-700 group bg-black"
+                  >
+                    <img
+                      src={img.url}
+                      alt={img.caption || 'Body Reference'}
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(img.id)}
+                      className="absolute top-1 right-1 p-1 bg-red-600/80 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[10px] text-neutral-500 italic">
+                Belum ada foto referensi tubuh yang diunggah. Prompt akan mengandalkan deskripsi teks di atas.
+              </p>
+            )}
+          </div>
+
+          {/* Accordion Rincian Anatomi Tubuh Lengkap */}
+          <div className="border border-neutral-800 rounded-xl overflow-hidden bg-neutral-950/30">
+            <button
+              type="button"
+              onClick={() => setShowDetails(!showDetails)}
+              className="w-full px-4 py-2.5 flex items-center justify-between text-xs font-semibold text-neutral-300 hover:text-white"
+            >
+              <span className="flex items-center gap-2">
+                <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+                Rincian Siluet & Anatomi Spesifik (Dada, Pinggang, Pinggul, Kaki)
+              </span>
+              {showDetails ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+
+            {showDetails && (
+              <div className="p-4 border-t border-neutral-800 space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-semibold text-neutral-400 block mb-1">
+                      Siluet Tubuh:
+                    </label>
+                    <input
+                      type="text"
+                      value={config.bodySilhouette}
+                      onChange={e => handleFieldChange('bodySilhouette', e.target.value)}
+                      placeholder="Siluet jam pasir alami, ramping berisi tanpa otot kekar"
+                      className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-semibold text-neutral-400 block mb-1">
+                      Tekstur Kulit Tubuh:
+                    </label>
+                    <input
+                      type="text"
+                      value={config.skinTexture}
+                      onChange={e => handleFieldChange('skinTexture', e.target.value)}
+                      placeholder="Tekstur organik alami dengan lipatan persendian wajar"
+                      className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-semibold text-neutral-400 block mb-1">
+                      Leher, Bahu & Lengan:
+                    </label>
+                    <input
+                      type="text"
+                      value={config.neckAndShoulders}
+                      onChange={e => handleFieldChange('neckAndShoulders', e.target.value)}
+                      placeholder="Bahu membulat rileks, lengan lembut feminin"
+                      className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-semibold text-neutral-400 block mb-1">
+                      Dada:
+                    </label>
+                    <input
+                      type="text"
+                      value={config.bustDetail}
+                      onChange={e => handleFieldChange('bustDetail', e.target.value)}
+                      placeholder="Bentuk dada alami proporsional mengikuti gravitasi nyata"
+                      className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-semibold text-neutral-400 block mb-1">
+                      Pinggang & Perut:
+                    </label>
+                    <input
+                      type="text"
+                      value={config.waistAndMidriff}
+                      onChange={e => handleFieldChange('waistAndMidriff', e.target.value)}
+                      placeholder="Pinggang ramping melengkung mulus, perut rata lembut alami"
+                      className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-semibold text-neutral-400 block mb-1">
+                      Pinggul, Bokong & Kaki:
+                    </label>
+                    <input
+                      type="text"
+                      value={config.hipsAndGlutes}
+                      onChange={e => handleFieldChange('hipsAndGlutes', e.target.value)}
+                      placeholder="Pinggul proporsional membulat halus, paha lembut berisi"
+                      className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="p-3.5 rounded-xl bg-neutral-950/40 border border-dashed border-neutral-800 text-neutral-400 text-xs flex items-center justify-between">
+          <span>Body Lock non-aktif. Proporsi tubuh fleksibel mengikuti konsep umum adegan.</span>
+          <button
+            type="button"
+            onClick={handleToggle}
+            className="text-indigo-400 font-semibold hover:underline text-xs"
+          >
+            Aktifkan Sekarang →
+          </button>
+        </div>
+      )}
     </div>
   );
 };
