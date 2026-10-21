@@ -14,6 +14,7 @@ import {
   X,
   Zap,
   Flame,
+  Camera,
 } from 'lucide-react';
 import { Badge } from './ui/Badge';
 
@@ -22,6 +23,7 @@ export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
+    { label: 'Photo Studio 📸', href: '/photo', icon: Camera, badge: 'New' },
     { label: 'Video Studio', href: '/generator', icon: Sparkles },
     { label: 'Poster Monyet 🐵', href: '/poster', icon: Flame, badge: 'Viral' },
     { label: 'Proyek Saya', href: '/projects', icon: FolderOpen },
@@ -76,11 +78,14 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* Preset Engine Badge & CTA */}
-          <div className="hidden lg:flex items-center gap-3">
-            <Badge variant="blue" size="sm" className="hidden xl:inline-flex">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse mr-1"></span>
-              Seedance 2.5 & Omni Flash
-            </Badge>
+          <div className="hidden lg:flex items-center gap-2">
+            <Link
+              href="/photo"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 border border-violet-500/30 transition-all active:scale-95"
+            >
+              <Camera className="w-3.5 h-3.5 text-violet-400" />
+              Photo Studio
+            </Link>
 
             <Link
               href="/generator"

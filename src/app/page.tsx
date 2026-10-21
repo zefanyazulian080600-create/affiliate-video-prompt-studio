@@ -12,6 +12,7 @@ import {
   Cpu,
   Film,
   Zap,
+  Camera,
 } from 'lucide-react';
 import { PromptProject } from '@/types';
 import { listProjects } from '@/lib/storage/project-store';
@@ -68,10 +69,17 @@ export default function DashboardPage() {
           </p>
 
           <div className="flex flex-wrap items-center gap-3 pt-2">
+            <Link href="/photo">
+              <Button variant="primary" size="lg" className="text-sm bg-gradient-to-r from-violet-600 via-indigo-600 to-pink-600 hover:from-violet-500 hover:to-pink-500 font-bold shadow-lg shadow-violet-900/40">
+                <Camera className="w-4 h-4 mr-2" />
+                Buka Photo Studio (iPhone 13)
+              </Button>
+            </Link>
+
             <Link href="/generator">
-              <Button variant="primary" size="lg" className="text-sm">
+              <Button variant="secondary" size="lg" className="text-sm">
                 <Sparkles className="w-4 h-4 mr-2" />
-                Buat Video Baru Sekarang
+                Buat Video Baru
               </Button>
             </Link>
 

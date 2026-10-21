@@ -87,7 +87,27 @@ affiliate-video-studio/
 
 ---
 
-## 4. CARA MENJALANKAN SECARA LOKAL
+## 4. STUDIO MODUL: MASTER PROMPT PHOTO GENERATOR
+
+Platform kini dilengkapi dengan studio fotografi profesional di `/photo`:
+- **Estetika Utama**: Foto candid/lifestyle yang secara masuk akal diambil menggunakan kamera belakang atau depan **Apple iPhone 13**, dalam situasi nyata, pencahayaan alami, detail kulit autentik, dan anatomi konsisten.
+- **Sistem Penguncian Ganda**:
+  - **Face Lock**: Menjaga identitas visual wajah (struktur tulang, pori-pori mikro, freckles, tahi lalat pipi kanan bawah, kacamata gunmetal, bentuk bibir, rambut beach waves & flyaways).
+  - **Body Lock**: Menjaga proporsi tubuh (headless reference) 169 cm, 56 kg, siluet jam pasir lembut (soft voluptuous hourglass), bust 42 dengan gravitasi alami, pinggang ramping 60 cm tanpa sixpack/otot keras, pinggul lebar berisi, dan kaki jenjang.
+- **iPhone 13 Photography Realism Engine**:
+  - Kamera Belakang Utama 26mm f/1.6 (depth of field alami sensor, bukan bokeh palsu).
+  - Kamera Belakang Ultra-Wide 13mm f/2.4 (120° FOV, distorsi sudut halus).
+  - Kamera Depan TrueDepth 23mm f/2.2 (selfie jarak satu jangkauan lengan).
+  - Mirror Selfie (ponsel iPhone 13 nyata dipegang tangan, pantulan cermin akurat).
+- **Format Prompt Bahasa Indonesia**:
+  - Narasi fotografis mendalam yang terstruktur dalam Bahasa Indonesia.
+  - Negative prompt anti-AI terpisah (menghilangkan kulit plastik, tangan rusak, airbrushing, dan efek CGI).
+  - Fitur perbaikan instan berbasis konteks (AI Refinement).
+  - Benchmark karakter bawaan: **Anya Pitaloka** (Face Lock & Body Lock 4-Views).
+
+---
+
+## 5. CARA MENJALANKAN SECARA LOKAL
 
 ### Prasyarat
 - Node.js versi 18 ke atas (Direkomendasikan Node.js 20 atau 24).
